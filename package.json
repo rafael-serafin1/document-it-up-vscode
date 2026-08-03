@@ -1,0 +1,58 @@
+{
+  "name": "cml-vscode",
+  "displayName": "Document It Up",
+  "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
+  "version": "0.1.1",
+  "publisher": "Skrom",
+  "markdown": "github",
+  "icon": "assets/docitup.png",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:cml.showLabels"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "documentation",
+    "cml",
+    "comments",
+    "navigation",
+    "markup",
+    "semantic",
+    "labels"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cml.showLabels",
+        "title": "CML: Show Labels",
+        "category": "CML",
+        "icon": "$(group-by-ref-type)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "cml.showLabels",
+          "group": "navigation@1",
+          "when": "editorTextFocus"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p ."
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.6.0"
+  }
+}
