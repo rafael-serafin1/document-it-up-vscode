@@ -1,6 +1,6 @@
 # CML (Commentary Markup Language)
 
-A **Commentary Markup Language (CML)** é uma linguagem de marcação baseada em comentários, projetada para fornecer metadados estruturados para uma extensão do VS Code.
+Commentary Markup Language (CML) é uma linguagem de metadados baseada em comentários que adiciona navegação, documentação, relacionamento e informações semânticas ao código-fonte de forma independente da linguagem de programação.
 
 Seu principal objetivo é permitir a navegação rápida dentro de um arquivo sem depender da estrutura da linguagem de programação. A CML não substitui a documentação da linguagem. Ela adiciona metadados estruturados e navegação semântica independentes da linguagem de programação.
 
@@ -282,12 +282,6 @@ Define o estado como sendo a fazer.
 
 ---
 
-## `<throws>`**
-
-Exibe todas as possíveis exceções lançadas pelo código.
-
-
-
 ## `<exception>`
 
 Descreve uma exceção específica.
@@ -300,7 +294,6 @@ Define o nome da exceção.
 ### Exemplo
 
 ```cpp
-//<throws>ArgumentNullException ; std::invalid_argument</throws>
 //<exception named="std::invalid_argument">Argumento com valor inválido para função.</exception>
 ```
 
@@ -331,14 +324,14 @@ public class Carro {
 
 ---
 
-## `<permission>`
+## `<access>`
 
 Define quem possui permissões de uso.
 
 ### Exemplo
 
 ```rs
-//<permission>admin</permission>
+//<access>admin</access>
 ```
 
 ---
@@ -374,6 +367,8 @@ GPL
 MPL
 EPL
 ```
+
+> Observação: Não se limita a apenas essas licenças, mas essas são as mais comuns e serão listadas no Completion Provider do atributo `type`.
 
 ---
 

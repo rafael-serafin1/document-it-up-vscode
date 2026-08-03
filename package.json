@@ -2,7 +2,7 @@
   "name": "cml-vscode",
   "displayName": "Document It Up",
   "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
-  "version": "0.2.7",
+  "version": "0.3.3",
   "publisher": "Skrom",
   "repository": {
     "type": "git",
@@ -66,6 +66,13 @@
         "title": "CML: Show Labels",
         "category": "CML",
         "icon": "$(group-by-ref-type)"
+      } 
+    ],
+    "keybindings": [
+      {
+        "command": "cml.showLabels",
+        "key": "alt+k",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {

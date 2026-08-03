@@ -21,6 +21,8 @@ Labels are displayed in a dedicated navigation panel, allowing you to jump direc
 
 ![Labels Navigation Button](assets/images/navigation.png "CML Labels Navigation")
 
+or just use 'Alt + K' keybind to navigate between labels.
+
 ---
 
 ### 📚 Structured Documentation
