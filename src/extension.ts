@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import { parseCmlLabels, CmlLabel } from './CmlParser';
-import { CmlTagSuggestion, CmlCompletionProvider } from './providers/CmlCompletionProvider';
+import { CmlCompletionProvider } from './providers/CmlCompletionProvider';
 import { AttributeCompletionProvider } from './providers/CmlAttributeCompletionProvider';
+import { AttributeValueCompletionProvider } from './providers/CmlAttributeValuesCompletionProvider';
+import { CmlHoverProvider } from './providers/CmlHoverProvider';
 
 interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
@@ -10,6 +12,7 @@ interface CmlQuickPickItem extends vscode.QuickPickItem {
 //<label>CORPSE</label>
 //<desc>Corpo da extensão</desc>
 //<span>
+//<summary>Ativa a extensão assim que abre o VSCode</summary>
 export function activate(context: vscode.ExtensionContext) {
   const showLabelsCommand = vscode.commands.registerCommand('cml.showLabels', async () => { 
     const editor = vscode.window.activeTextEditor;
@@ -40,29 +43,38 @@ export function activate(context: vscode.ExtensionContext) {
     quickPick.show();
   });
 
-  const completionProvider = vscode.languages.registerCompletionItemProvider(
+  const tagCompletionProvider = vscode.languages.registerCompletionItemProvider(
     [{ scheme: 'file' }, { scheme: 'untitled' }],
     new CmlCompletionProvider(),
     '<'
   );
 
-  context.subscriptions.push(
-    vscode.languages.registerCompletionItemProvider(
-      "cml",
-      new AttributeCompletionProvider(),
-      " ",
-      "-"
-      )
+  const attributeCompletionProvider = vscode.languages.registerCompletionItemProvider(
+    [{ scheme: 'file' }, { scheme: 'untitled' }],
+    new AttributeCompletionProvider(),
+    ' ',
+    '-'
   );
 
-  context.subscriptions.push(showLabelsCommand, completionProvider);
+  const attributeValueCompletionProvider = vscode.languages.registerCompletionItemProvider(
+    [{ scheme: 'file' }, { scheme: 'untitled' }],
+    new AttributeValueCompletionProvider(),
+    '"'
+  );
+
+  const hoverProvider = vscode.languages.registerHoverProvider(
+    [{ scheme: 'file' }, { scheme: 'untitled' }],
+    new CmlHoverProvider()
+  );
+
+  context.subscriptions.push(showLabelsCommand, tagCompletionProvider, attributeCompletionProvider, attributeValueCompletionProvider, hoverProvider);
 }
 
 //<author>Rafael Engel Serafin</author>
 function buildQuickPickItem(label: CmlLabel): CmlQuickPickItem {
   const spanDescription = label.spans.length > 0
     ? `${label.spans.length} span${label.spans.length > 1 ? 's' : ''}`
-    : 'No span detected';
+    : 'No <span> detected';
 
   return {
     label: label.name,

@@ -3,10 +3,24 @@
   "injectionSelector": "L:comment",
   "patterns": [
     {
-      "match": "</?([a-zA-Z][a-zA-Z0-9-]*)>",
+      "match": "(</?)([a-zA-Z][a-zA-Z0-9-]*)((?:\\s+[a-zA-Z_:][a-zA-Z0-9_:.-]*(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\\s\"'=<>`]+))?)*)\\s*(/?>)",
       "captures": {
-        "0": { "name": "punctuation.definition.tag.cml" },
-        "1": { "name": "entity.name.tag.cml" }
+        "1": { "name": "punctuation.definition.tag.begin.cml" },
+        "2": { "name": "entity.name.tag.cml" },
+        "3": {
+          "name": "meta.tag.attributes.cml",
+          "patterns": [
+            {
+              "match": "([a-zA-Z_:][a-zA-Z0-9_:.-]*)(\\s*=\\s*)?(\"[^\"]*\"|'[^']*'|[^\\s\"'=<>`]+)?",
+              "captures": {
+                "1": { "name": "entity.other.attribute-name.cml" },
+                "2": { "name": "punctuation.separator.key-value.cml" },
+                "3": { "name": "string.unquoted.attribute-value.cml" }
+              }
+            }
+          ]
+        },
+        "4": { "name": "punctuation.definition.tag.end.cml" }
       }
     }
   ]

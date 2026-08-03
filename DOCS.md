@@ -315,13 +315,13 @@ Descreve quem foi o autor de tal parte do código. Pode ser usado em `<span>`.
 `contact`:
 Define um meio de contato com o autor. Pode ser email, número de telefone, etc.
 
-`github`:
+`repository`:
 Define uma url para o Github do autor.
 
 ### Exemplo
 
 ```cs
-//<author contact="lucão123@example.com" github="https://github.com/lucas-lucros$$.git">Lucão</author>
+//<author contact="lucão123@example.com" repository="https://github.com/lucas-lucros$$.git">Lucão</author>
 public class Carro {
     private string placa;
     private int chasi;
