@@ -74,14 +74,14 @@ export function activate(context: vscode.ExtensionContext) {
 function buildQuickPickItem(label: CmlLabel): CmlQuickPickItem {
   const spanDescription = label.spans.length > 0
     ? `${label.spans.length} span${label.spans.length > 1 ? 's' : ''}`
-    : 'No <span> detected';
+    : 'No span detected';
 
   return {
     label: label.name,
     description: label.description ?? spanDescription,
     detail: label.spans.length > 0
       ? `Span detected at ${label.spans.map((span) => `${span.startLine + 1}-${span.endLine + 1}`).join(', ')}`
-      : 'No <span> region detected.',
+      : 'No span region detected.',
     labelData: label,
   };
 }

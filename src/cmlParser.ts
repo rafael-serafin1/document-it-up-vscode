@@ -27,6 +27,41 @@ const spanClosePattern = /<\/span>/i;
 //</span>
 
 
+//<label>HELPERS</label>
+//<desc>Funções de ajuda para o parser</desc>
+//<span>
+
+///<summary>Verifica se a tag está dentro dos limites do comentário.</summary>
+function getCommentContent(line: string): string | undefined {
+  const trimmed = line.trim();
+
+  // //
+  if (trimmed.startsWith("//"))
+    return trimmed.substring(2).trim();
+
+  if (trimmed.startsWith("/*") && trimmed.endsWith("*/"))
+    return trimmed.substring(2, -2).trim();
+
+  // #
+  if (trimmed.startsWith("#"))
+    return trimmed.substring(1).trim();
+
+  // ;
+  if (trimmed.startsWith(";"))
+    return trimmed.substring(1).trim();
+
+  // *
+  if (trimmed.startsWith("*"))
+    return trimmed.substring(1).trim();
+
+  // (* *)
+  if (trimmed.startsWith("(*") && trimmed.endsWith("*)"))
+    return trimmed.slice(2, -2).trim();
+
+  return undefined;
+}
+//</span>
+
 //<label>PARSER</label>
 //<desc>Implementação do parser para reconhecimento das tags.</desc>
 //<span>
@@ -38,12 +73,16 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
     const line = document.lineAt(lineIndex).text;
 
+    const comment = getCommentContent(line);
+
+    if (!comment) 
+      continue;
+
     const labelMatch = labelPattern.exec(line);
     if (labelMatch) {
       const name = labelMatch[1].trim();
-      if (!name) {
+      if (!name)
         continue;
-      }
 
       const range = new vscode.Range(
         new vscode.Position(lineIndex, line.indexOf(labelMatch[0])),

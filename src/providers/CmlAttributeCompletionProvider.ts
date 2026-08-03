@@ -2,6 +2,12 @@ import * as vscode from 'vscode';
 import { AttributesDefinition, licenseAttrs, seeAttr } from './CmlAttributeValuesCompletionProvider';
 
 const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
+  param: [
+    {
+        name: "name",
+        desc: "Descreve o nome do parâmetro, se tiver"
+    }
+  ],
   see: seeAttr,
   seealso: seeAttr,
   status: [
