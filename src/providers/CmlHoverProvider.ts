@@ -5,9 +5,16 @@ interface CmlParam {
     description: string;
 }
 
+interface CmlSee {
+    attr: string;
+    linkage: "path" | "url" | "target";
+}
+
 interface SummaryEntry {
     description: string;
     params: CmlParam[];
+    see: CmlSee[];
+    seealso?: CmlSee[];
     returnDescription?: string;
     note?: string;
     warning?: string;
@@ -35,6 +42,34 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         if (entry.returnDescription)
             markdown.appendMarkdown(`\n\n---\n\n### Return\n\n${entry.returnDescription}`);
 
+        if (entry.see.length > 0) {
+            markdown.appendMarkdown(`\n\n---\n\n### You should see these\n`);
+            for (const item of entry.see) {
+                if (item.linkage === 'path') {
+                    const uri = vscode.Uri.file(item.attr);
+                    markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
+                }
+                else if (item.linkage === 'url') 
+                    markdown.appendMarkdown(`\n- <a href=\"${item.attr}\">${item.attr}</a>`);
+                else 
+                    markdown.appendMarkdown(`\n- #${item.attr}`);
+            }
+        }
+
+        if (entry.seealso && entry.seealso.length > 0) {
+            markdown.appendMarkdown(`\n\n---\n\n### See also\n`);
+            for (const item of entry.see) {
+                if (item.linkage === 'path') {
+                    const uri = vscode.Uri.file(item.attr);
+                    markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
+                }
+                else if (item.linkage === 'url') 
+                    markdown.appendMarkdown(`\n- <a href=\"${item.attr}\">${item.attr}</a>`);
+                else 
+                    markdown.appendMarkdown(`\n- #${item.attr}`);
+            }
+        }
+
         if (entry.note)
             markdown.appendMarkdown(`\n\n---\n\n#### Note:\n\n- ${entry.note}`);
 
@@ -53,6 +88,9 @@ export class CmlHoverProvider implements vscode.HoverProvider {
     //<param name="position">Recebe a posição do cursor dentro do arquivo.</param>
     //<return>Uma Promise podendo conter tanto uma interface 'SummaryEntry'.</return>
     //<warn>Pode retornar 'undefined' também!</warn>
+    //<see path="./CmlHoverProvider.ts" />
+    //<see url="https://github.com" />
+    //<see target="#TAGS" />
     private async findSummaryEntry(document: vscode.TextDocument, position: vscode.Position): Promise<SummaryEntry | undefined> {
         const summaries = await this.parseSummaries(document);
 
@@ -89,10 +127,14 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             const returnDescription = this.parseReturnBetweenLines(document, lineIndex + 1, symbol.range.start.line);
             const note = this.parseNote(document, lineIndex + 1, symbol.range.start.line);
             const warning = this.parseWarn(document, lineIndex + 1, symbol.range.start.line)
+            const see = this.parseSeeBetweenLines(document, lineIndex + 1, symbol.range.start.line);
+            const seealso = this.parseSeeAlsoBetweenLines(document, lineIndex + 1, symbol.range.start.line);
 
             entries.push({
                 description,
                 params,
+                see,
+                seealso,
                 returnDescription,
                 note,
                 warning,
@@ -103,7 +145,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return entries;
     }
 
-    //<summary>Parseia as tags param, visto em mente que pode ter mais de uma.</summary>
+    //<summary>Parseia as tags 'param', visto em mente que pode ter mais de uma.</summary>
     private parseParamsBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlParam[] {
         const params: CmlParam[] = [];
         const paramRegex = /<param\s+name="([^"]+)">(.*?)<\/param>/gi;
@@ -126,7 +168,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return params;
     }
 
-    //<summary>Parseia as tags return.</summary>
+    //<summary>Parseia as tags 'return'.</summary>
     private parseReturnBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): string | undefined {
         const returnRegex = /<return>(.*?)<\/return>/i;
 
@@ -144,7 +186,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return undefined;
     }
 
-    //<summary>Parseia as tags note</summary>
+    //<summary>Parseia as tags 'note'</summary>
     private parseNote(document: vscode.TextDocument, startLine: number, endLine: number): string | undefined {
         const noteRegex = /<note>(.*?)<\/note>/i;
 
@@ -162,6 +204,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return undefined
     }
 
+    //<summary>Parseia as tags 'warn'</summary>
     private parseWarn(document: vscode.TextDocument, startLine: number, endLine: number): string | undefined {
         const warnRegex = /<warn>(.*?)<\/warn>/i;
 
@@ -178,8 +221,63 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 
         return undefined;
     }
+
+    //<summary>Parseia as tags 'see', podendo haver mais de uma simultaneamente.</summary>
+    //<see target="./CmlHoverProvider.ts170:5" />
+    private parseSeeBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlSee[] {
+        const see: CmlSee[] = [];
+        const seeRegex =/<see\s+(path|url|target)\s*=\s*"([^"]+)"\s*\/>/gi;
+
+        for (let lineIndex = startLine; lineIndex < endLine && lineIndex < document.lineCount; lineIndex++) {
+            const line = document.lineAt(lineIndex).text;
+
+            for (const match of line.matchAll(seeRegex)) {
+                const linkage = match[1] as "path" | "url" | "target";
+                const attr = match[2].trim();
+
+                if (!attr)
+                    continue;
+
+                see.push({
+                    attr,
+                    linkage
+                });
+            }
+        }
+
+        return see;
+    }
+
+    //<summary>Parseia as tags 'see', podendo haver mais de uma simultaneamente.</summary>
+    //<see target="./CmlHoverProvider.ts170:5" />
+    private parseSeeAlsoBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlSee[] {
+        const see: CmlSee[] = [];
+        const seeRegex =/<seealso\s+(path|url|target)\s*=\s*"([^"]+)"\s*\/>/gi;
+
+        for (let lineIndex = startLine; lineIndex < endLine && lineIndex < document.lineCount; lineIndex++) {
+            const line = document.lineAt(lineIndex).text;
+
+            for (const match of line.matchAll(seeRegex)) {
+                const linkage = match[1] as "path" | "url" | "target";
+                const attr = match[2].trim();
+
+                if (!attr)
+                    continue;
+
+                see.push({
+                    attr,
+                    linkage
+                });
+            }
+        }
+
+        return see;
+    }
 //</span>
 
+//<label>SYMBOLS</label>
+//<desc>Tenho é medo disso</desc>
+//<span>
     private async findFollowingSymbol(document: vscode.TextDocument, startLine: number): Promise<{ range: vscode.Range } | undefined> {
         const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
             "vscode.executeDocumentSymbolProvider",

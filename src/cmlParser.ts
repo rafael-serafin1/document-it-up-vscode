@@ -14,6 +14,8 @@ export interface CmlLabel {
   description?: string;
   range: vscode.Range;
   spans: CmlSpan[];
+  parent?: CmlLabel;
+  children: CmlLabel[];
 }
 //</span>
 
@@ -68,14 +70,14 @@ function getCommentContent(line: string): string | undefined {
 export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   const labels: CmlLabel[] = [];
   let currentLabel: CmlLabel | undefined;
-  let currentSpan: CmlSpan | undefined;
+  const openLabelStack: CmlLabel[] = [];
+  const openSpanStack: Array<{ label: CmlLabel; span: CmlSpan }> = [];
 
   for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
     const line = document.lineAt(lineIndex).text;
-
     const comment = getCommentContent(line);
 
-    if (!comment) 
+    if (!comment)
       continue;
 
     const labelMatch = labelPattern.exec(line);
@@ -84,14 +86,20 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
       if (!name)
         continue;
 
-      const range = new vscode.Range(
+      const labelRange = new vscode.Range(
         new vscode.Position(lineIndex, line.indexOf(labelMatch[0])),
         new vscode.Position(lineIndex, line.indexOf(labelMatch[0]) + labelMatch[0].length)
       );
 
-      currentLabel = { name, description: undefined, range, spans: [] };
+      currentLabel = { name, description: undefined, range: labelRange, spans: [], children: [] };
       labels.push(currentLabel);
-      currentSpan = undefined;
+
+      const parentLabel = openLabelStack[openLabelStack.length - 1];
+      if (parentLabel) {
+        currentLabel.parent = parentLabel;
+        parentLabel.children.push(currentLabel);
+      }
+
       continue;
     }
 
@@ -105,7 +113,7 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
 
     if (spanOpenPattern.test(line) && currentLabel) {
       const startLine = lineIndex + 1;
-      currentSpan = {
+      const span = {
         startLine,
         endLine: Math.max(startLine, document.lineCount - 1),
         range: new vscode.Range(
@@ -113,18 +121,28 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
           new vscode.Position(Math.max(startLine, document.lineCount - 1), document.lineAt(Math.max(startLine, document.lineCount - 1)).text.length)
         ),
       };
-      currentLabel.spans.push(currentSpan);
+
+      currentLabel.spans.push(span);
+      openLabelStack.push(currentLabel);
+      openSpanStack.push({ label: currentLabel, span });
       continue;
     }
 
-    if (spanClosePattern.test(line) && currentSpan) {
-      const endLine = Math.max(currentSpan.startLine, lineIndex - 1);
-      currentSpan.endLine = endLine;
-      currentSpan.range = new vscode.Range(
-        new vscode.Position(currentSpan.startLine, 0),
+    if (spanClosePattern.test(line) && openSpanStack.length > 0) {
+      const activeSpan = openSpanStack.pop();
+      if (!activeSpan)
+        continue;
+
+      const endLine = Math.max(activeSpan.span.startLine, lineIndex - 1);
+      activeSpan.span.endLine = endLine;
+      activeSpan.span.range = new vscode.Range(
+        new vscode.Position(activeSpan.span.startLine, 0),
         new vscode.Position(endLine, document.lineAt(endLine).text.length)
       );
-      currentSpan = undefined;
+
+      if (openLabelStack[openLabelStack.length - 1] === activeSpan.label) {
+        openLabelStack.pop();
+      }
     }
   }
 

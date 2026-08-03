@@ -193,11 +193,14 @@ Se não houver uma etiqueta no escopo (arquivo) atual com o nome entregue logo a
 ### Exemplo
 
 ```cpp
+//<label>STRINGS</label>
+//<span>
 void trim(char* str) {
     ...
 }
+//</span>
 
-//<see target="trim"/>
+//<see target="#STRINGS"/>
 void absolute_trim(char* str) {
     ...
 }
@@ -416,6 +419,53 @@ PARSING
 ```
 
 Ao clicar em uma label, o editor move o cursor para a linha onde ela foi declarada.
+
+> **Importante:** somente labels pertencentes ao arquivo atualmente aberto podem ser utilizadas para navegação.
+
+## Hierarquia de Labels
+
+A extensão exibe um Quick Pick contento todas as labels pais e, cada label pai pode conter nenhuma ou mais labels filhas. Através de um segundo comando chamado `CML: Show Hierarchy`, é possível escolher por uma label-pai, para procurar as labels-filhas deste e assim pode escolher a label-filha desejada para navegar até ela.
+
+Exemplo: 
+
+```
+Arquivo Atual
+
+▼ Labels
+
+CLASSES
+FUNÇÕES
+STRUCTS
+
+*escolhe CLASSES*
+
+▼ Labels de CLASSES
+
+BANCO_DE_DADOS
+HTTP
+
+```
+
+Exemplo de síntaxe:
+
+```cpp
+//<label>CLASSES</label>
+//<span>
+
+//<label>BANCO_DE_DADOS</label>
+//<span>
+class Connection {
+    ...
+};
+//</span>
+
+// </span>
+```
+
+CLASSES ----> BANCO_DE_DADOS
+  pai             filho
+
+Ao clicar em uma label-filha, o editor move o cursor para a linha onde ela foi declarada.
 
 > **Importante:** somente labels pertencentes ao arquivo atualmente aberto podem ser utilizadas para navegação.
 

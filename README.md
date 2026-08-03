@@ -25,6 +25,39 @@ or just use 'Alt + K' keybind to navigate between labels.
 
 ---
 
+### 🌳 Hierarchy-based Tree Navigation
+
+Organize large labels into logical subsections using children labels.
+
+```cpp
+//<label>NETWORK</label>
+//<desc>Networking utilities.</desc>
+//<span>
+
+//<label>HTTP_REQUEST_GET</label>
+//<desc>HTTP Requisiton Method GET</desc>
+//<span>
+...
+//</span>
+
+
+//<label>HTTP_REQUEST_POST</label>
+//<desc>HTTP Requisiton Method POST</desc>
+//<span>
+...
+//</span>
+
+//</span>
+```
+
+Those are listed in a dedicated navigation panel, allowing you to jump directly to important sections of the current file with a single click.
+
+![Hierarchy Navigation Labels](assets/images/hierarchy.png "CML Labels Hierarchy")
+
+or just use 'Alt + J' keybind to navigate between labels.
+
+---
+
 ### 📚 Structured Documentation
 
 Document functions, classes, structures, variables, enumerations, namespaces, and other language constructs using semantic tags.
