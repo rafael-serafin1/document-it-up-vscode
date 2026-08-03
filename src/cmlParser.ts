@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 //<label>INTERFACES</label>
-//<desc></desc>
+//<desc>Interfaces responsáveis pelas tags span e label</desc>
 //<span>
 export interface CmlSpan {
   startLine: number;
@@ -18,6 +18,7 @@ export interface CmlLabel {
 //</span>
 
 //<label>PATTERNS</label>
+//<desc>Moldes de reconhecimento usando Regex.</desc>
 //<span>
 const labelPattern = /<label>([^<]+)<\/label>/i;
 const descPattern = /<desc>([^<]+)<\/desc>/i;
@@ -27,6 +28,7 @@ const spanClosePattern = /<\/span>/i;
 
 
 //<label>PARSER</label>
+//<desc>Implementação do parser para reconhecimento das tags.</desc>
 //<span>
 export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   const labels: CmlLabel[] = [];

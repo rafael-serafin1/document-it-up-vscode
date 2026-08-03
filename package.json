@@ -2,10 +2,14 @@
   "name": "cml-vscode",
   "displayName": "Document It Up",
   "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "Skrom",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rafael-serafin1/document-it-up-vscode.git"
+  },
   "markdown": "github",
-  "icon": "assets/docitup.png",
+  "icon": "assets/images/docitup.png",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -13,6 +17,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "onCommand:cml.showLabels"
   ],
   "license": "MIT",
@@ -27,6 +32,34 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configurationDefaults": {
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": "entity.name.tag.cml",
+            "settings": {
+              "foreground": "#3FAF5A"
+            }
+          },
+          {
+            "scope": "punctuation.definition.tag.cml",
+            "settings": {
+              "foreground": "#808080"
+            }
+          }
+        ]
+      }
+    },
+    "grammars": [
+      {
+        "scopeName": "comment.cml.injection",
+        "path": "./syntaxes/cml-tags.tmLanguage.json",
+        "injectTo": [
+          "source",
+          "text.plain"
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "cml.showLabels",

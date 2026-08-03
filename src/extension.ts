@@ -1,23 +1,26 @@
 import * as vscode from 'vscode';
-import { parseCmlLabels, CmlLabel } from './cmlParser';
+import { parseCmlLabels, CmlLabel } from './CmlParser';
+import { CmlTagSuggestion, CmlCompletionProvider } from './providers/CmlCompletionProvider';
+import { AttributeCompletionProvider } from './providers/CmlAttributeCompletionProvider';
 
 interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
 }
 
 //<label>CORPSE</label>
+//<desc>Corpo da extensão</desc>
 //<span>
 export function activate(context: vscode.ExtensionContext) {
-  const showLabelsCommand = vscode.commands.registerCommand('cml.showLabels', async () => {
+  const showLabelsCommand = vscode.commands.registerCommand('cml.showLabels', async () => { 
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-      vscode.window.showInformationMessage('Abra um arquivo com tags CML para exibir as labels.');
+      vscode.window.showInformationMessage('Open a file with CML tags to display the labels.');
       return;
     }
 
     const labels = parseCmlLabels(editor.document);
     if (labels.length === 0) {
-      vscode.window.showInformationMessage('Nenhuma label CML encontrada no arquivo atual.');
+      vscode.window.showInformationMessage('No CML label found in the current file.');
       return;
     }
 
@@ -37,20 +40,36 @@ export function activate(context: vscode.ExtensionContext) {
     quickPick.show();
   });
 
-  context.subscriptions.push(showLabelsCommand);
+  const completionProvider = vscode.languages.registerCompletionItemProvider(
+    [{ scheme: 'file' }, { scheme: 'untitled' }],
+    new CmlCompletionProvider(),
+    '<'
+  );
+
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(
+      "cml",
+      new AttributeCompletionProvider(),
+      " ",
+      "-"
+      )
+  );
+
+  context.subscriptions.push(showLabelsCommand, completionProvider);
 }
 
+//<author>Rafael Engel Serafin</author>
 function buildQuickPickItem(label: CmlLabel): CmlQuickPickItem {
   const spanDescription = label.spans.length > 0
     ? `${label.spans.length} span${label.spans.length > 1 ? 's' : ''}`
-    : 'Sem span';
+    : 'No span detected';
 
   return {
     label: label.name,
     description: label.description ?? spanDescription,
     detail: label.spans.length > 0
-      ? `Span detectado nas linhas ${label.spans.map((span) => `${span.startLine + 1}-${span.endLine + 1}`).join(', ')}`
-      : 'Nenhuma região <span> detectada.',
+      ? `Span detected at ${label.spans.map((span) => `${span.startLine + 1}-${span.endLine + 1}`).join(', ')}`
+      : 'No <span> region detected.',
     labelData: label,
   };
 }

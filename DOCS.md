@@ -321,7 +321,7 @@ Define uma url para o Github do autor.
 ### Exemplo
 
 ```cs
-//<author>Lucão</author>
+//<author contact="lucão123@example.com" github="https://github.com/lucas-lucros$$.git">Lucão</author>
 public class Carro {
     private string placa;
     private int chasi;

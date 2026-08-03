@@ -19,7 +19,7 @@ Organize large files into logical sections using labels.
 
 Labels are displayed in a dedicated navigation panel, allowing you to jump directly to important sections of the current file with a single click.
 
-![Labels Navigation Button](./assets/navigation.png "CML Labels Navigation")
+![Labels Navigation Button](assets/images/navigation.png "CML Labels Navigation")
 
 ---
 
