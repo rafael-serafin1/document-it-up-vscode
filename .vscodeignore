@@ -1,0 +1,42 @@
+# Código fonte (só precisa do JS compilado)
+src/**
+**/*.ts
+
+# Configurações
+.vscode/**
+.github/**
+.todo/**
+
+# Git
+.git/**
+.gitignore
+
+# Node
+node_modules/.bin/**
+node_modules/typescript/**
+node_modules/@types/**
+
+# Documentação
+README-dev.md
+CHANGELOG-dev.md
+DOCS.md
+
+# Arquivos de build
+tsconfig.json
+.eslintrc*
+.prettierrc*
+package-lock.json
+
+# Testes
+test/**
+tests/**
+coverage/**
+
+# Outros
+*.log
+*.py
+*.svg
+
+# Arquivos de software
+Todofile
+Makefile

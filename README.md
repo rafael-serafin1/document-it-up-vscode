@@ -1,10 +1,24 @@
-# Document It Up
+# 📃 Document It Up
 
-**Document It Up** is a Visual Studio Code extension that introduces the **Commentary Markup Language (CML)**, a lightweight markup language designed to enrich source code with structured metadata using ordinary comments.
+Document It Up brings semantic navigation, structured documentation, and language-independent metadata to Visual Studio Code through the Commentary Markup Language (CML).
 
 Unlike traditional documentation systems that focus exclusively on generating API documentation, CML is built around two complementary goals: **semantic code navigation** and **language-independent documentation**. By embedding simple markup tags inside comments, developers can organize large source files, document symbols, create relationships between different parts of the codebase, and quickly navigate through projects without modifying the source code itself.
 
 Because CML is entirely comment-based, it can be adopted incrementally and used with virtually any programming language that supports comments, including C, C++, C#, Rust, Java, JavaScript, TypeScript, Python, Lua, Go, PHP, Kotlin, Swift, and many others.
+
+## 🚀 Quick Start
+
+Install the extension and start writing CML tags inside your comments.
+
+```cpp
+//<label>STRINGS</label>
+//<desc>String manipulation utilities.</desc>
+
+//<summary>Removes whitespace.</summary>
+char* trim(char* str);
+```
+
+Open the **Labels** panel or press **Alt+K** to jump directly to the section.
 
 ## Features
 
@@ -29,7 +43,7 @@ or just use 'Alt + K' keybind to navigate between labels.
 
 Organize large labels into logical subsections using children labels.
 
-```cpp
+```java
 //<label>NETWORK</label>
 //<desc>Networking utilities.</desc>
 //<span>
@@ -37,14 +51,14 @@ Organize large labels into logical subsections using children labels.
 //<label>HTTP_REQUEST_GET</label>
 //<desc>HTTP Requisiton Method GET</desc>
 //<span>
-...
+{...}
 //</span>
 
 
 //<label>HTTP_REQUEST_POST</label>
 //<desc>HTTP Requisiton Method POST</desc>
 //<span>
-...
+{...}
 //</span>
 
 //</span>
@@ -55,6 +69,56 @@ Those are listed in a dedicated navigation panel, allowing you to jump directly 
 ![Hierarchy Navigation Labels](assets/images/hierarchy.png "CML Labels Hierarchy")
 
 or just use 'Alt + J' keybind to navigate between labels.
+
+---
+
+### 📜 Query Author's Work
+
+Locate every symbol written by a specific developer using the `<author>` tag.
+
+```cpp
+//<author repository="https://github.com/rafael-serafin1">Rafael</author>
+//<summary>Represents a database connection.</summary>
+class DBConnection {
+    ...
+};
+
+//<author>Rafael</author>
+//<summary>Removes leading and trailing whitespace.</summary>
+char* trim(char* text);
+
+//<author>John</author>
+enum ProductType {
+    ...
+};
+```
+
+Run the **`CML: Search by Author's Name`** command and enter the author's name in the input box.
+
+```
+Current Project
+
+> Insert Author's name
+
+< Rafael
+
+▼ Author's symbols
+
+DBConnection    (CLASS)
+trim            (FUNCTION)
+ProductType     (ENUM)
+```
+
+The extension scans the entire workspace for CML `<author>` tags and lists every documented symbol associated with the specified author.
+
+Selecting an item immediately opens the corresponding file and moves the cursor to the symbol declaration.
+
+This feature is especially useful for:
+
+- Tracking code ownership
+- Reviewing contributions from a specific developer
+- Navigating large collaborative projects
+- Finding related implementations maintained by the same author
 
 ---
 

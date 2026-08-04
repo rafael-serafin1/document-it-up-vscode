@@ -10,6 +10,12 @@ const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
   ],
   see: seeAttr,
   seealso: seeAttr,
+  example: [
+    {
+      name: 'lang',
+      desc: 'Define a linguagem do exemplo.'
+    }
+  ],
   status: [
     {
       name: 'deprecated',

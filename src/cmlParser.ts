@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { CmlAuthor } from './providers/interfaces/CmlInterfaces';
+import { CmlHoverProvider } from './providers/CmlHoverProvider';
 
 //<label>INTERFACES</label>
 //<desc>Interfaces responsáveis pelas tags span e label</desc>
@@ -17,6 +19,14 @@ export interface CmlLabel {
   parent?: CmlLabel;
   children: CmlLabel[];
 }
+
+export interface CmlAuthorParsed {
+  name: string;
+  contact?: string;
+  repository?: string;
+  range: vscode.Range;
+  lineNumber: number;
+}
 //</span>
 
 //<label>PATTERNS</label>
@@ -26,6 +36,9 @@ const labelPattern = /<label>([^<]+)<\/label>/i;
 const descPattern = /<desc>([^<]+)<\/desc>/i;
 const spanOpenPattern = /<span>/i;
 const spanClosePattern = /<\/span>/i;
+
+const authorPattern = /<author\s*([^>]*)>([^<]+)<\/author>/i;
+const authorAttrsPattern = /(contact|repository)\s*=\s*"([^"]+)"/gi;
 //</span>
 
 
@@ -67,9 +80,11 @@ function getCommentContent(line: string): string | undefined {
 //<label>PARSER</label>
 //<desc>Implementação do parser para reconhecimento das tags.</desc>
 //<span>
+
 export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   const labels: CmlLabel[] = [];
   let currentLabel: CmlLabel | undefined;
+
   const openLabelStack: CmlLabel[] = [];
   const openSpanStack: Array<{ label: CmlLabel; span: CmlSpan }> = [];
 
@@ -147,5 +162,44 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   }
 
   return labels;
+}
+
+export function parseCmlAuthors(document: vscode.TextDocument): CmlAuthorParsed[] {
+  const authors: CmlAuthorParsed[] = [];
+
+  for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+    const line = document.lineAt(lineIndex).text;
+    const comment = getCommentContent(line);
+
+    if (!comment)
+      continue;
+
+    const authorMatch = line.match(/<author\b([^>]*)>(.*?)<\/author>/i);
+    if (!authorMatch)
+      continue;
+
+    const name = (authorMatch[2] || '').trim();
+    if (!name)
+      continue;
+
+    const tagText = authorMatch[0];
+    const startCharacter = line.indexOf(tagText);
+    const authorRange = new vscode.Range(
+      new vscode.Position(lineIndex, startCharacter),
+      new vscode.Position(lineIndex, startCharacter + tagText.length)
+    );
+
+    const attrs = CmlHoverProvider.parseAttributes(authorMatch[1] || '');
+
+    authors.push({
+      name,
+      contact: attrs.contact,
+      repository: attrs.repository,
+      range: authorRange,
+      lineNumber: lineIndex + 1,
+    });
+  }
+
+  return authors;
 }
 //</span>

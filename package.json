@@ -2,7 +2,7 @@
   "name": "cml-vscode",
   "displayName": "Document It Up",
   "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
-  "version": "0.3.9",
+  "version": "0.5.1",
   "publisher": "Skrom",
   "repository": {
     "type": "git",
@@ -19,15 +19,25 @@
   "activationEvents": [
     "onStartupFinished",
     "onCommand:cml.showLabels",
-    "onCommand:cml.showHierarchy"
+    "onCommand:cml.showHierarchy",
+    "onCommand:cml.searchByAuthor"
   ],
   "license": "MIT",
   "keywords": [
     "documentation",
+    "comment",
+    "commentary",
     "cml",
     "comments",
     "navigation",
+    "hierarchy",
     "markup",
+    "tag-based",
+    "tags",
+    "html",
+    "xml",
+    "docs",
+    "document",
     "semantic",
     "labels"
   ],
@@ -73,6 +83,12 @@
         "title": "CML: Show Hierarchy",
         "category": "CML",
         "icon": "$(list-tree)"
+      },
+      {
+        "command": "cml.searchByAuthor",
+        "title": "CML: Search by Author's Name",
+        "category": "CML",
+        "icon": "$(search)"
       }
     ],
     "keybindings": [
@@ -84,6 +100,11 @@
       {
         "command": "cml.showHierarchy",
         "key": "alt+j",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "cml.searchByAuthor",
+        "key": "alt+i",
         "when": "editorTextFocus"
       }
     ],
@@ -97,6 +118,11 @@
         {
           "command": "cml.showHierarchy",
           "group": "navigation@2",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "cml.searchByAuthor",
+          "group": "navigation@3",
           "when": "editorTextFocus"
         }
       ]

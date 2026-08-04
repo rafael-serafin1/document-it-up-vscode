@@ -1,6 +1,6 @@
 # CML (Commentary Markup Language)
 
-Commentary Markup Language (CML) é uma linguagem de metadados baseada em comentários que adiciona navegação, documentação, relacionamento e informações semânticas ao código-fonte de forma independente da linguagem de programação.
+Commentary Markup Language (CML) transforma comentários em uma camada semântica navegável do código, baseada em tags que adiciona navegação, documentação, relacionamento e informações semânticas ao código-fonte de forma independente da linguagem de programação.
 
 Seu principal objetivo é permitir a navegação rápida dentro de um arquivo sem depender da estrutura da linguagem de programação. A CML não substitui a documentação da linguagem. Ela adiciona metadados estruturados e navegação semântica independentes da linguagem de programação.
 
@@ -23,6 +23,41 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 ---
 
 # Tags
+
+## Identidades das tags
+
+### Tags de navegação
+
+```
+<label>
+<desc>
+<span>
+---> Em Desenvolvimento
+<next>
+<labelref>
+<depends>
+<author>
+```
+
+### Tags de documentação
+
+```
+<summary>
+<param>
+<return>
+<see>
+<seealso>
+<note>
+<warn>
+---> Em Desenvolvimento
+<example>
+<since>
+<status>
+<exception>
+<access>
+<platform>
+<license>
+```
 
 ## `<label>`**
 
@@ -80,6 +115,33 @@ char[] split(char *str, char splitter) {
 }
 // </span>
 ```
+
+---
+
+## `<next>`**
+
+Define um fluxo linear único de documentação.
+
+### Exemplo
+
+```js
+//<label>WINDOW_ON_LOAD_HANDLER</label>
+//<desc>Handle animation trigger upon window loading status.</desc>
+//<next>SCROLL_REVEAL_HANDLER</next>
+//<span>
+
+window.onload({
+    ...
+})
+
+//</span>
+```
+
+---
+
+## `<goto>`
+
+Define um fluxo multi-linear único de documentação.
 
 ---
 
@@ -345,7 +407,7 @@ Define a plataforma a qual uma parte do código pode ser utilizada.
 
 ### Exemplo
 
-```rs
+```rs 
 //<platform>Windows</platform>
 pub fn make_dir(path: &str) {
     _mkdir(path);
@@ -377,6 +439,8 @@ EPL
 
 # Futuras Tags
 
+`<labelref>`
+`<depends>`
 `<performance>`
 `<collaterals>`
 `<requires>`
@@ -421,6 +485,26 @@ PARSING
 Ao clicar em uma label, o editor move o cursor para a linha onde ela foi declarada.
 
 > **Importante:** somente labels pertencentes ao arquivo atualmente aberto podem ser utilizadas para navegação.
+
+## Por autoria
+
+Com o comando `CML: Search by Author's Name`, é possível fazer uma busca completa no projeto por todos os códigos de autoria de um desenvolvedor através da tag `<author>`. 
+É pedido ao usuário para inserir o nome do autor em um Input Box e, ao pressionar Enter, será buscado por todo o projeto por símbolos registrados no nome daquele autor. Assim que a busca terminar, vai mostrar um quick pick com todos os códigos de autoria daquele autor. Ao clicar em qualquer item do quick item, o usuário será lançado até o range correspondente.
+
+Exemplo:
+```
+Projeto Atual
+
+> Insert Author's name
+
+< Rafael
+
+▼ Author's symbols
+
+DBConnection    (CLASS)
+trim            (FUNCTION)
+ProductType     (ENUM)
+```
 
 ## Hierarquia de Labels
 
@@ -468,6 +552,73 @@ CLASSES ----> BANCO_DE_DADOS
 Ao clicar em uma label-filha, o editor move o cursor para a linha onde ela foi declarada.
 
 > **Importante:** somente labels pertencentes ao arquivo atualmente aberto podem ser utilizadas para navegação.
+
+## Fluxo de leitura 
+
+### Linear
+
+Permite que através de `<label>` e `<next>` seja possível definir um fluxo de leitura linear apropriado para o desenvolvedor. Fluxo esse podendo ser visto através de um pipeline gerado ao usar o comando `CML: Show Linear Flux`.
+
+```cpp
+//<label>DATA_BASE_CONFIGS</label>
+//<next>#DATA_BASE_CREATE</next>
+//<span>
+class DBConnection {
+    ...
+}
+// </span>
+
+
+//<label>DATA_BASE_CREATE</label>
+//<next>#DATA_BASE_READ</next>
+//<span>
+class DBCreate {
+    ...
+}
+//</span>
+
+//<label>DATA_BASE_READ</label>
+//<next>#DATA_BASE_UPDATE</next>
+//<span>
+class DBRead {
+    ...
+}
+//</span>
+```
+ 
+> **Importante:** O fluxo de leitura não depende de hierarquia e é totalmente independente, além de ser obrigatória a presença da tag `<next>` para que o fluxo seja gerado.
+
+### Tree Root
+
+Permite que através de `<label>` e `<goto>` seja possível definir um fluxo de leitura multi-linear apropriado para o desenvolvedor. Fluxo esse podendo ser visto através de um pipeline gerado ao usar o comando `CML: Show Multi-linear Flux`.
+
+```cpp
+//<label>DATA_BASE_CONFIGS</label>
+//<goto>#DATA_BASE_CREATE</goto>
+//<goto>#DATA_BASE_UPDATE</goto>
+//<span>
+class DBConnection {
+    ...
+}
+// </span>
+
+
+//<label>DATA_BASE_CREATE</label>
+//<next>#DATA_BASE_READ</next>
+//<span>
+class DBCreate {
+    ...
+}
+//</span>
+
+//<label>DATA_BASE_READ</label>
+//<next>#DATA_BASE_UPDATE</next>
+//<span>
+class DBRead {
+    ...
+}
+//</span>
+```
 
 ---
 

@@ -26,7 +26,6 @@ def remover_vsix() -> None:
     for arquivo in Path(".").glob("cml-vscode-*.vsix"):
         arquivo.unlink()
 
-
 def incrementar_versao(caminho: Path) -> None:
     """
     Incrementa em +1 o último número da versão em 'caminho' (ex.: ./package.json).

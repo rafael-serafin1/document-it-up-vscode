@@ -1,37 +1,28 @@
 import * as vscode from 'vscode';
+import { SummaryEntry, CmlAuthor, CmlParam, CmlSee, AuthorEntry } from './interfaces/CmlInterfaces';
 
-interface CmlParam {
-    name: string;
-    description: string;
-}
-
-interface CmlSee {
-    attr: string;
-    linkage: "path" | "url" | "target";
-}
-
-interface SummaryEntry {
-    description: string;
-    params: CmlParam[];
-    see: CmlSee[];
-    seealso?: CmlSee[];
-    returnDescription?: string;
-    note?: string;
-    warning?: string;
-    range: vscode.Range;
-}
 
 //<summary>Classe responsável por prover o modal de hover.</summary>
 //<note>Miséria e ódio para o JAVASCRIPT.</note>
 export class CmlHoverProvider implements vscode.HoverProvider {
     async provideHover(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Hover | undefined> {
         const entry = await this.findSummaryEntry(document, position);
+        const authors = await this.findAuthorEntry(document, position);
 
-        if (!entry)
+        if (!entry || !authors)
             return undefined;
 
         const markdown = new vscode.MarkdownString();
-        markdown.appendMarkdown(`### Summary\n\n${entry.description}`);
+
+        if (authors.author) {
+            markdown.appendMarkdown(`## Author: **${authors.author.name}**`);
+            if (authors.author.contact)
+                markdown.appendMarkdown(`\n\n-\tcontact: ${authors.author.contact}`);
+            if (authors.author.repository)
+                markdown.appendMarkdown(`\n\n-\trepository: [${authors.author.name.toUpperCase()}'s Repository](${authors.author.repository})`);
+        }
+
+        markdown.appendMarkdown(`\n\n---\n\n### Summary\n\n${entry.description}`);
 
         if (entry.params.length > 0) {
             markdown.appendMarkdown(`\n\n---\n\n### Params\n`);
@@ -50,7 +41,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                     markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
                 }
                 else if (item.linkage === 'url') 
-                    markdown.appendMarkdown(`\n- <a href=\"${item.attr}\">${item.attr}</a>`);
+                    markdown.appendMarkdown(`\n- [${item.attr}](${item.linkage})`);
                 else 
                     markdown.appendMarkdown(`\n- #${item.attr}`);
             }
@@ -66,7 +57,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                 else if (item.linkage === 'url') 
                     markdown.appendMarkdown(`\n- <a href=\"${item.attr}\">${item.attr}</a>`);
                 else 
-                    markdown.appendMarkdown(`\n- #${item.attr}`);
+                    markdown.appendMarkdown(`\n- ${item.attr}`);
             }
         }
 
@@ -88,9 +79,6 @@ export class CmlHoverProvider implements vscode.HoverProvider {
     //<param name="position">Recebe a posição do cursor dentro do arquivo.</param>
     //<return>Uma Promise podendo conter tanto uma interface 'SummaryEntry'.</return>
     //<warn>Pode retornar 'undefined' também!</warn>
-    //<see path="./CmlHoverProvider.ts" />
-    //<see url="https://github.com" />
-    //<see target="#TAGS" />
     private async findSummaryEntry(document: vscode.TextDocument, position: vscode.Position): Promise<SummaryEntry | undefined> {
         const summaries = await this.parseSummaries(document);
 
@@ -101,12 +89,21 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return undefined;
     }
 
+    private async findAuthorEntry(document: vscode.TextDocument, position: vscode.Position): Promise<AuthorEntry | undefined> {
+        const authors = await this.parseAuthorBetween(document);
+
+        for (const author of authors) 
+            if (author.range.contains(position))
+                return author;
+
+        return undefined;
+    }
+
     //<summary>Faz o parsing dos summaries.</summary>
     private async parseSummaries(document: vscode.TextDocument): Promise<SummaryEntry[]> {
         const entries: SummaryEntry[] = [];
 
         for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
-
             const line = document.lineAt(lineIndex).text;
             const summaryMatch = line.match(/<summary>(.*?)<\/summary>/i);
 
@@ -143,6 +140,43 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         }
 
         return entries;
+    }
+
+    private async parseAuthorBetween(document: vscode.TextDocument): Promise<AuthorEntry[]> {
+        const authors: AuthorEntry[] = [];
+        const authorRegex = /<author\s*([^>]*)>(.*?)<\/author>/i;
+        const attributeRegex = /(contact|repository)\s*=\s*"([^"]+)"/gi;
+        
+        for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+            const line = document.lineAt(lineIndex).text;
+            const authorMatch = line.match(authorRegex);
+
+            if (!authorMatch)
+                continue;
+
+            const name = authorMatch[2].trim();
+
+            if (!name)
+                continue;
+
+            const symbol = await this.findFollowingSymbol(document, lineIndex + 1);
+
+            if (!symbol)
+                continue;
+
+            const attrs = CmlHoverProvider.parseAttributes(authorMatch[1]);
+
+            authors.push({
+                author: {
+                    name,
+                    contact: attrs.contact,
+                    repository: attrs.repository
+                },
+                range: symbol.range
+            })
+        } 
+
+        return authors;   
     }
 
     //<summary>Parseia as tags 'param', visto em mente que pode ter mais de uma.</summary>
@@ -275,6 +309,22 @@ export class CmlHoverProvider implements vscode.HoverProvider {
     }
 //</span>
 
+//<label>ATTRIBUTES_PARSER</label>
+//<desc>Implementação do parser para tags multi-atributos</desc>
+//<span>
+
+    public static parseAttributes(text: string): Record<string, string> {
+        const regex = /(\w+)\s*=\s*"([^"]+)"/g;
+        const attrs: Record<string, string> = {};
+
+        for (const match of text.matchAll(regex))
+            attrs[match[1]] = match[2];
+
+        return attrs;
+    }
+
+// </span>
+
 //<label>SYMBOLS</label>
 //<desc>Tenho é medo disso</desc>
 //<span>
@@ -287,7 +337,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         if (!symbols)
             return undefined;
 
-        const flatSymbols = this.flattenSymbols(symbols);
+        const flatSymbols = CmlHoverProvider.flattenSymbols(symbols);
 
         let closest: vscode.DocumentSymbol | undefined;
 
@@ -308,7 +358,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         };
     }
 
-    private flattenSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] {
+    public static flattenSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] {
         const result: vscode.DocumentSymbol[] = [];
 
         const visit = (symbol: vscode.DocumentSymbol) => {
