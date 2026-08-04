@@ -16,6 +16,11 @@ export interface CmlAuthor {
     repository?: string;
 }
 
+export interface CmlStatus {
+    type?: string;
+    desc?: string;
+}
+
 export interface SummaryEntry {
     description: string;
     params: CmlParam[];
@@ -29,5 +34,11 @@ export interface SummaryEntry {
 
 export interface AuthorEntry {
     author?: CmlAuthor;
+    range: vscode.Range;
+}
+
+export interface SinceEntry {
+    since?: string;
+    status?: CmlStatus;
     range: vscode.Range;
 }

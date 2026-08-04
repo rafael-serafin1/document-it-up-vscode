@@ -1,18 +1,29 @@
 import * as vscode from 'vscode';
-import { SummaryEntry, CmlAuthor, CmlParam, CmlSee, AuthorEntry } from './interfaces/CmlInterfaces';
+import { SummaryEntry, CmlAuthor, CmlParam, CmlSee, AuthorEntry, SinceEntry, CmlStatus } from './interfaces/CmlInterfaces';
+import { Contains, Style, styleText } from '../utils/Utils';
 
 //<summary>Classe responsável por prover o modal de hover.</summary>
 //<note>Miséria e ódio para o JAVASCRIPT.</note>
+//<since>0.5.7</since>
 export class CmlHoverProvider implements vscode.HoverProvider {
     async provideHover(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Hover | undefined> {
         const entry = await this.findSummaryEntry(document, position);
         const authorEntry = await this.findAuthorEntry(document, position);
+        const sinceEntry = await this.findSinceEntry(document, position);
 
         if (!entry && !authorEntry)
             return undefined;
 
         const markdown = new vscode.MarkdownString();
 
+        if (sinceEntry) {
+            if (sinceEntry?.since){
+                if (sinceEntry?.status && sinceEntry?.status.type)
+                    markdown.appendMarkdown(`\n\n***${sinceEntry.status.type.toUpperCase()}*** ${((sinceEntry.status.desc) ? sinceEntry.status.desc : "No description.")}`);
+                markdown.appendMarkdown(`\n\n*since ${sinceEntry.since}*\n\n---\n\n`);
+            }
+        }
+        
         if (authorEntry?.author) {
             markdown.appendMarkdown(`## Author: **${authorEntry.author.name}**`);
             if (authorEntry.author.contact)
@@ -30,7 +41,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             if (entry.params.length > 0) {
                 markdown.appendMarkdown(`\n\n---\n\n### Params\n`);
                 for (const param of entry.params)
-                    markdown.appendMarkdown(`\n- **${param.name}**: ${param.description}`);
+                    markdown.appendMarkdown(`\n- \`${param.name}\`: ${param.description}`);
             }
 
             if (entry.returnDescription)
@@ -69,13 +80,17 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 
             if (entry?.warning)
                 markdown.appendMarkdown(`\n\n---\n\n> ⚠ **Warning**\n\n>${entry.warning}`);
-
         }
+
         return new vscode.Hover(markdown, entry?.range ?? authorEntry?.range);
     }
 
 //<label>TAGS</label>
 //<desc>Acha as entradas de summary, param, entre outros, e faz parsing dele.</desc>
+//<span>
+
+//<label>FINDERS</label>
+//<desc>Procuradores</desc>
 //<span>
 
     //<summary>Acha todos os summaries</summary>
@@ -93,6 +108,11 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return undefined;
     }
 
+    //<summary>Reune todas as metadatas da tag 'author'</summary>
+    //<param name="document">Recebe o documento de texto provido pelo VSCode.</param>
+    //<param name="position">Recebe a posição do cursor dentro do arquivo.</param>
+    //<return>Uma Promise podendo conter tanto uma interface 'AuthorEntry'.</return>
+    //<warn>Pode retornar 'undefined' também!</warn>
     private async findAuthorEntry(document: vscode.TextDocument, position: vscode.Position): Promise<AuthorEntry | undefined> {
         const authors = await this.parseAuthorBetween(document);
 
@@ -102,6 +122,21 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 
         return undefined;
     }
+
+    private async findSinceEntry(document: vscode.TextDocument, position: vscode.Position): Promise<SinceEntry | undefined> {
+        const sinces = await this.parseSinceBetween(document);
+
+        for (const since of sinces)
+            if (since.range.contains(position))
+                return since;
+
+        return undefined;
+    }
+//</span>
+
+//<label>PARSERS_PRINCIPAIS</label>
+//<desc>Parseadores principais de tags únicas.</desc>
+//<span>
 
     //<summary>Faz o parsing dos summaries.</summary>
     private async parseSummaries(document: vscode.TextDocument): Promise<SummaryEntry[]> {
@@ -151,7 +186,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         const authorRegex = /<author\s*([^>]*)>(.*?)<\/author>/i;
         const attributeRegex = /(contact|repository)\s*=\s*"([^"]+)"/gi;
         
-        for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+        for (let lineIndex = 0; lineIndex < document.lineCount; ++lineIndex) {
             const line = document.lineAt(lineIndex).text;
             const authorMatch = line.match(authorRegex);
 
@@ -182,6 +217,44 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 
         return authors;   
     }
+
+    //<summary>Cataloga todos as tags 'since'.</summary>
+    //<param name="document">Documento de texto do VS Code</param>
+    //<return>Uma Promise contendo um vetor de interfaces.</return>
+    private async parseSinceBetween(document: vscode.TextDocument): Promise<SinceEntry[]> {
+        const sinces: SinceEntry[] = [];
+        const sinceRegex = /<since>(.*?)<\/since>/i;
+
+        for (let lineIndex = 0; lineIndex < document.lineCount; ++lineIndex) {
+            const line = document.lineAt(lineIndex).text;
+            const sinceMatch = line.match(sinceRegex);
+
+            if (!sinceMatch)
+                continue;
+
+            const since = sinceMatch[1].trim();
+
+            if (!since)
+                continue;
+
+            const symbolRange = await this.findFollowingSymbol(document, lineIndex + 1);
+
+            if (!symbolRange)
+                continue;
+
+            const status = this.parseStatusBetweenLines(document, lineIndex + 1, symbolRange.start.line);
+
+            sinces.push({
+                since,
+                status,
+                range: symbolRange
+            })
+        }
+
+        return sinces;
+    }
+
+//</span>
 
     //<summary>Parseia as tags 'param', visto em mente que pode ter mais de uma.</summary>
     private parseParamsBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlParam[] {
@@ -287,10 +360,10 @@ export class CmlHoverProvider implements vscode.HoverProvider {
     }
 
     //<summary>Parseia as tags 'see', podendo haver mais de uma simultaneamente.</summary>
-    //<see target="./CmlHoverProvider.ts170:5" />
+    //<see path="./src/providers/CmlHoverProvider.ts" />
     private parseSeeAlsoBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlSee[] {
         const see: CmlSee[] = [];
-        const seeRegex =/<seealso\s+(path|url|target)\s*=\s*"([^"]+)"\s*\/>/gi;
+        const seeRegex = /<seealso\s+(path|url|target)\s*=\s*"([^"]+)"\s*\/>/gi;
 
         for (let lineIndex = startLine; lineIndex < endLine && lineIndex < document.lineCount; lineIndex++) {
             const line = document.lineAt(lineIndex).text;
@@ -310,6 +383,38 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         }
 
         return see;
+    }
+
+    //<summary>Parseia a tag 'status'</summary>
+    //<since>0.6.2</since>
+    //<status type="deprecated">Marked for removal in 0.6.9</status>
+    private parseStatusBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlStatus | undefined {
+        const statusRegex = /<status\s+(type)\s*=\s*"([^"]+)"\s*>(.*?)<\/status>/gi;
+        const allValues = ["deprecated", "bugged", "todo"];             
+
+        for (let lineIndex = startLine; lineIndex < endLine && lineIndex < document.lineCount; lineIndex++) {
+            const line = document.lineAt(lineIndex).text;
+
+            for (const match of line.matchAll(statusRegex)) {
+                const attrValue = match[2].trim();
+                const desc = match[3].trim();
+
+                if (!attrValue)
+                    continue;
+
+                if (!Contains(allValues, attrValue)) {
+                    vscode.window.showErrorMessage(`No such type for <status> called: '${attrValue}'`);
+                    return undefined;
+                }
+
+                return {
+                    type: attrValue,
+                    desc
+                };
+            }
+        }
+
+        return undefined;
     }
 //</span>
 
@@ -350,27 +455,50 @@ export class CmlHoverProvider implements vscode.HoverProvider {
     }
 
     private findFallbackSymbolRange(document: vscode.TextDocument, startLine: number): vscode.Range | undefined {
-        const declarationPattern = /\b(class|interface|struct|record|enum|trait|namespace|module|type|function|func|def|fn|procedure|sub|let|const|var|using|public|private|protected|internal|static|async|export|abstract|extern)\b/i;
+        let insideBlockComment: boolean = false;
 
         for (let lineIndex = startLine; lineIndex < document.lineCount; lineIndex++) {
             const line = document.lineAt(lineIndex).text;
             const trimmed = line.trim();
 
+            // linha vazia
             if (!trimmed)
                 continue;
 
-            if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('#') || trimmed.startsWith(';'))
-                continue;
+            // comentários de bloco
+            if (insideBlockComment) {
+                if (trimmed.includes("*/"))
+                    insideBlockComment = false;
 
-            if (trimmed.startsWith('{') || trimmed.startsWith('}') || trimmed.startsWith(')') || trimmed.startsWith(']') || trimmed.startsWith('['))
                 continue;
-
-            if (declarationPattern.test(trimmed)) {
-                return new vscode.Range(
-                    new vscode.Position(lineIndex, 0),
-                    new vscode.Position(lineIndex, line.length)
-                );
             }
+
+            if (trimmed.startsWith("/*")) {
+                if (!trimmed.includes("*/"))
+                    insideBlockComment = true;
+
+                continue;
+            }
+
+            // comentários de linha
+            if (
+                trimmed.startsWith("//")    ||
+                trimmed.startsWith("#")     ||
+                trimmed.startsWith(";")     ||
+                trimmed.startsWith("*")
+            ) {
+                continue;
+            }
+
+            // linhas contendo apenas delimitadores
+            if (/^[{}\[\]();,]+$/.test(trimmed))
+                continue;
+
+            // primeiro código encontrado
+            return new vscode.Range(
+                new vscode.Position(lineIndex, 0),
+                new vscode.Position(lineIndex, line.length)
+            );
         }
 
         return undefined;

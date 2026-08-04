@@ -17,7 +17,7 @@ function buildAuthorsWorkQuickPick(author: AuthorSearchResult): CmlAuthorQuickPi
 
     return {
         label: `${label} ${symbolSuffix}`,
-        description: `${author.filePath} -> Line ${author.lineNumber}`,
+        description: `${author.filePath} >> Line ${author.lineNumber}`,
         detail: details,
         authorData: author,
     };

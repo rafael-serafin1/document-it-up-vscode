@@ -18,16 +18,8 @@ const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
   ],
   status: [
     {
-      name: 'deprecated',
-      desc: 'Define o estado como sendo uma função marcada para descarte.'
-    },
-    {
-      name: 'bugged',
-      desc: 'Define o estado como sendo de mal funcionamento.'
-    },
-    {
-      name: 'todo',
-      desc: 'Define o estado como sendo a fazer.'
+      name: "type",
+      desc: 'Define o estado atual da implementação de um símbolo.'
     }
   ],
   exception: [

@@ -30,8 +30,17 @@ export const licenseAttrs: string[] = [
   'Eclipse Public License'
 ];
 
+export const statusValues: string[] = [
+  'deprecated',
+  'bugged',
+  'todo'
+]
+
 export class AttributeValueCompletionProvider implements vscode.CompletionItemProvider {
   private readonly attributeValues: Record<string, Record<string, string[]>> = {
+    status: {
+      type: statusValues
+    },
     license: {
       type: licenseAttrs
     }

@@ -32,6 +32,7 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 <label>
 <desc>
 <span>
+<author>
 ---> Em Desenvolvimento
 <next>
 <labelref>
@@ -49,9 +50,9 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 <seealso>
 <note>
 <warn>
+<since>
 ---> Em Desenvolvimento
 <example>
-<since>
 <status>
 <exception>
 <access>
@@ -327,23 +328,42 @@ void append_to_file(char* str) {
 
 ---
 
-## `<status>`
+## `<status>`**
 
 Define o estado atual de uma partição do código.
 
 ### Atributos
 
-> Observação:
-    Todos os atributos abaixo são booleanos e pelo menos um deles deve estar no status, mas nem todos podem estar ao mesmo tempo em um único.
+`type`
+Define o tipo de status do símbolo logo abaixo. Valores possíveis:
+```
+deprecated
+bugged
+todo
+thread-safe
+```
 
-`deprecated`:
-Define o estado como sendo uma função marcada para descarte.
+### Exemplo
 
-`bugged`:
-Define o estado como sendo de mal funcionamento.
+```fs
+open System
 
-`todo`:
-Define o estado como sendo a fazer.
+type Terminal = {
+    Top: int
+    Left: int
+}
+
+//<status type="deprecated" />
+//<since>19.2.10</since>
+let consoleSize(): Terminal =
+    let pos = Console.GetCursorPosition()
+    match pos with
+    | t, l -> 
+        {
+            Top = t
+            Left = l
+        }
+```
 
 ---
 

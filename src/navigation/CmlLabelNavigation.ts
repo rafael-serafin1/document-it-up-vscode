@@ -29,29 +29,30 @@ export function revealLabel(editor: vscode.TextEditor, label: CmlLabel) {
 //</span>
 
 export function ShowLabels() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-      vscode.window.showInformationMessage('Open a file with CML tags to display the labels.');
-      return;
-    }
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    vscode.window.showInformationMessage('Open a file with CML tags to display the labels.');
+    return;
+  }
+  
+  const labels = parseCmlLabels(editor.document);
+  if (labels.length === 0) {
+    vscode.window.showInformationMessage('No CML label found in the current file.');
+    return;
+  }
 
-    const labels = parseCmlLabels(editor.document);
-    if (labels.length === 0) {
-      vscode.window.showInformationMessage('No CML label found in the current file.');
-      return;
-    }
+  const quickPick = vscode.window.createQuickPick<CmlQuickPickItem>();
 
-    const quickPick = vscode.window.createQuickPick<CmlQuickPickItem>();
-    quickPick.placeholder = 'Pick a label';
-    quickPick.items = labels.map(buildQuickPickItem);
+  quickPick.placeholder = 'Pick a label';
+  quickPick.items = labels.map(buildQuickPickItem);
 
-    quickPick.onDidAccept(() => {
-      const selected = quickPick.selectedItems[0];
-      if (selected) 
-        revealLabel(editor, selected.labelData);
-      quickPick.dispose();
-    });
+  quickPick.onDidAccept(() => {
+    const selected = quickPick.selectedItems[0];
+    if (selected) 
+      revealLabel(editor, selected.labelData);
+    quickPick.dispose();
+  });
 
-    quickPick.onDidHide(() => quickPick.dispose());
-    quickPick.show();
+  quickPick.onDidHide(() => quickPick.dispose());
+  quickPick.show();
 }
