@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
 import { parseCmlLabels, CmlLabel } from './CmlParser';
-import { CmlCompletionProvider } from './providers/CmlCompletionProvider';
-import { AttributeCompletionProvider } from './providers/CmlAttributeCompletionProvider';
-import { AttributeValueCompletionProvider } from './providers/CmlAttributeValuesCompletionProvider';
+import { CmlCompletionProvider } from './providers/completion/CmlCompletionProvider';
+import { AttributeCompletionProvider } from './providers/completion/CmlAttributeCompletionProvider';
+import { AttributeValueCompletionProvider } from './providers/completion/CmlAttributeValuesCompletionProvider';
 import { CmlHoverProvider } from './providers/CmlHoverProvider';
 import { ShowLabels } from './navigation/CmlLabelNavigation';
 import { ShowHierarchy } from './navigation/CmlLabelHierarchy';
 import { SearchByAuthorsName } from './navigation/CmlAuthorSearch';
+import { CmlNavigationProvider } from './containers/providers/CmlContainerProvider';
+import { CmlViewContainer } from './containers/CmlContainer';
 
 export interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
@@ -26,6 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   //<summary>Search authors command application</summary>
   const searchByAuthorCommand = vscode.commands.registerCommand('cml.searchByAuthor', async () => { await SearchByAuthorsName(); });
+
+  CmlViewContainer();
 
   const tagCompletionProvider = vscode.languages.registerCompletionItemProvider(
     [{ scheme: 'file' }, { scheme: 'untitled' }],

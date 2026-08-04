@@ -13,9 +13,12 @@ Install the extension and start writing CML tags inside your comments.
 ```cpp
 //<label>STRINGS</label>
 //<desc>String manipulation utilities.</desc>
+//<span>
 
 //<summary>Removes whitespace.</summary>
 char* trim(char* str);
+
+//</span>
 ```
 
 Open the **Labels** panel or press **Alt+K** to jump directly to the section.
@@ -77,13 +80,13 @@ or just use 'Alt + J' keybind to navigate between labels.
 Locate every symbol written by a specific developer using the `<author>` tag.
 
 ```cpp
-//<author repository="https://github.com/rafael-serafin1">Rafael</author>
+//<author repository="https://github.com/rafael-serafin1">Skrom</author>
 //<summary>Represents a database connection.</summary>
 class DBConnection {
     ...
 };
 
-//<author>Rafael</author>
+//<author>Skrom</author>
 //<summary>Removes leading and trailing whitespace.</summary>
 char* trim(char* text);
 

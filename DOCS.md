@@ -34,10 +34,13 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 <span>
 <author>
 ---> Em Desenvolvimento
+<pin>
+<entry>
+<exit>
 <next>
+<goto>
 <labelref>
 <depends>
-<author>
 ```
 
 ### Tags de documentação
@@ -51,9 +54,9 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 <note>
 <warn>
 <since>
+<status>
 ---> Em Desenvolvimento
 <example>
-<status>
 <exception>
 <access>
 <platform>
@@ -143,6 +146,76 @@ window.onload({
 ## `<goto>`
 
 Define um fluxo multi-linear único de documentação.
+
+---
+
+## `<pin>`
+
+Define uma marcação em uma linha. Através dessa tag, é possível navegar através da busca por favoritos de um autor, ou buscar partes importantes, partes que precisam ser revisadas, etc. Além de também ser possível filtar/pesquisar através do atributo `priority`.
+
+### Atributos
+
+`as`:
+Define o tipo de pino. Valores possíveis:
+```
+favorite
+important
+refactored
+caution
+reviewed
+optimization
+secured
+performatic
+```
+
+`by`:
+Define quem colocou o pino.
+
+`priority`:
+Define a prioridade daquele código. Valores possíveis:
+```
+none    
+low
+medium
+high 
+urgent
+```
+
+### Exemplo
+
+```rs
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CoinPrice {                          //<pin as="important" by="Raphael" priority="high" />
+    pub base: String,
+    pub currency: String,
+    pub amout: String
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CoinbasePrice {                      //<pin as="favorite" by="John Pork" />
+    pub data: CoinPrice
+}
+```
+
+---
+
+## `<entry>`** & `<exit>`
+
+Marca um ponto de entrada. Útil para buscar o ponto de entrada de um código e navegar até lá.
+
+### Exemplo
+
+```rs
+//<entry>Rust Main Entry Point</entry>
+pub fn main() {
+    ...
+}
+
+//<exit>Releases all unsafe allocated resources.</exit>
+pub fn shutdown() {
+    ...
+}
+```
 
 ---
 

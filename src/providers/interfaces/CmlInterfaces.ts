@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 
+//<label>COMMON_INTERFACES</label>
+//<desc>Interfaces comuns que representam certas tags.</desc>
+//<span>
 export interface CmlParam {
     name: string;
     description: string;
@@ -21,6 +24,11 @@ export interface CmlStatus {
     desc?: string;
 }
 
+//</span>
+
+//<label>HOVER_MARKDOWN_INTERFACES</label>
+//<desc>Interfaces usadas na construção do Markdown do Hover Provider.</desc>
+//<span>
 export interface SummaryEntry {
     description: string;
     params: CmlParam[];
@@ -42,3 +50,5 @@ export interface SinceEntry {
     status?: CmlStatus;
     range: vscode.Range;
 }
+
+//</span>

@@ -60,13 +60,13 @@ export const cmlTagSuggestions: CmlTagSuggestion[] = [
     label: 'see',
     detail: 'Cross-reference another code element',
     documentation: 'Cria uma referência a outro símbolo, arquivo ou etiqueta CML.',
-    insertText: 'see path="file_target">$0</see>'
+    insertText: 'see path="$0" />'
   },
   {
     label: 'seealso',
     detail: 'Suggest related references',
     documentation: 'Indica uma referência complementar relacionada.',
-    insertText: 'seealso target="#label_target">$0</seealso>'
+    insertText: 'seealso target="#$0" />'
   },
   {
     label: 'example',
@@ -84,7 +84,7 @@ export const cmlTagSuggestions: CmlTagSuggestion[] = [
     label: 'status',
     detail: 'Describe the current status',
     documentation: 'Representa o estado atual de uma parte do código.',
-    insertText: 'status>$0</status>'
+    insertText: 'status type="$0">$1</status>'
   },
   {
     label: 'exception',
