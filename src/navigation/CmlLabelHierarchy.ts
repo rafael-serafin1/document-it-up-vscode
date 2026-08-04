@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CmlLabel, parseCmlLabels } from '../CmlParser';
-import { buildQuickPickItem, CmlQuickPickItem, revealLabel } from './CmlLabelNavigation';
+import { buildQuickPickItem, revealLabel } from './CmlLabelNavigation';
+import { CmlQuickPickItem } from './interfaces/CmlNavigationInterfaces';
 
 function buildHierarchyItem(label: CmlLabel, path: CmlLabel[]): CmlQuickPickItem {
   const item = buildQuickPickItem(label);

@@ -1,73 +1,77 @@
 import * as vscode from 'vscode';
 import { SummaryEntry, CmlAuthor, CmlParam, CmlSee, AuthorEntry } from './interfaces/CmlInterfaces';
 
-
 //<summary>Classe responsável por prover o modal de hover.</summary>
 //<note>Miséria e ódio para o JAVASCRIPT.</note>
 export class CmlHoverProvider implements vscode.HoverProvider {
     async provideHover(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Hover | undefined> {
         const entry = await this.findSummaryEntry(document, position);
-        const authors = await this.findAuthorEntry(document, position);
+        const authorEntry = await this.findAuthorEntry(document, position);
 
-        if (!entry || !authors)
+        if (!entry && !authorEntry)
             return undefined;
 
         const markdown = new vscode.MarkdownString();
 
-        if (authors.author) {
-            markdown.appendMarkdown(`## Author: **${authors.author.name}**`);
-            if (authors.author.contact)
-                markdown.appendMarkdown(`\n\n-\tcontact: ${authors.author.contact}`);
-            if (authors.author.repository)
-                markdown.appendMarkdown(`\n\n-\trepository: [${authors.author.name.toUpperCase()}'s Repository](${authors.author.repository})`);
+        if (authorEntry?.author) {
+            markdown.appendMarkdown(`## Author: **${authorEntry.author.name}**`);
+            if (authorEntry.author.contact)
+                markdown.appendMarkdown(`\n\n-\tcontact: ${authorEntry.author.contact}`);
+            if (authorEntry.author.repository)
+                markdown.appendMarkdown(`\n\n-\trepository: [${authorEntry.author.name.toUpperCase()}'s Repository](${authorEntry.author.repository})`);
         }
 
-        markdown.appendMarkdown(`\n\n---\n\n### Summary\n\n${entry.description}`);
+        if (entry) {
+            if (authorEntry?.author)
+                markdown.appendMarkdown(`\n\n---\n\n`);
 
-        if (entry.params.length > 0) {
-            markdown.appendMarkdown(`\n\n---\n\n### Params\n`);
-            for (const param of entry.params)
-                markdown.appendMarkdown(`\n- **${param.name}**: ${param.description}`);
-        }
+            markdown.appendMarkdown(`### Summary\n\n${entry.description}`);
 
-        if (entry.returnDescription)
-            markdown.appendMarkdown(`\n\n---\n\n### Return\n\n${entry.returnDescription}`);
-
-        if (entry.see.length > 0) {
-            markdown.appendMarkdown(`\n\n---\n\n### You should see these\n`);
-            for (const item of entry.see) {
-                if (item.linkage === 'path') {
-                    const uri = vscode.Uri.file(item.attr);
-                    markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
-                }
-                else if (item.linkage === 'url') 
-                    markdown.appendMarkdown(`\n- [${item.attr}](${item.linkage})`);
-                else 
-                    markdown.appendMarkdown(`\n- #${item.attr}`);
+            if (entry.params.length > 0) {
+                markdown.appendMarkdown(`\n\n---\n\n### Params\n`);
+                for (const param of entry.params)
+                    markdown.appendMarkdown(`\n- **${param.name}**: ${param.description}`);
             }
-        }
 
-        if (entry.seealso && entry.seealso.length > 0) {
-            markdown.appendMarkdown(`\n\n---\n\n### See also\n`);
-            for (const item of entry.see) {
-                if (item.linkage === 'path') {
-                    const uri = vscode.Uri.file(item.attr);
-                    markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
+            if (entry.returnDescription)
+                markdown.appendMarkdown(`\n\n---\n\n### Return\n\n${entry.returnDescription}`);
+
+            if (entry.see.length > 0) {
+                markdown.appendMarkdown(`\n\n---\n\n### You should see these\n`);
+                for (const item of entry.see) {
+                    if (item.linkage === 'path') {
+                        const uri = vscode.Uri.file(item.attr);
+                        markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
+                    }
+                    else if (item.linkage === 'url') 
+                        markdown.appendMarkdown(`\n- [${item.attr}](${item.linkage})`);
+                    else 
+                        markdown.appendMarkdown(`\n- #${item.attr}`);
                 }
-                else if (item.linkage === 'url') 
-                    markdown.appendMarkdown(`\n- <a href=\"${item.attr}\">${item.attr}</a>`);
-                else 
-                    markdown.appendMarkdown(`\n- ${item.attr}`);
             }
+
+            if (entry.seealso && entry.seealso.length > 0) {
+                markdown.appendMarkdown(`\n\n---\n\n### See also\n`);
+                for (const item of entry.see) {
+                    if (item.linkage === 'path') {
+                        const uri = vscode.Uri.file(item.attr);
+                        markdown.appendMarkdown(`\n- [${item.attr}](${uri.toString()})`);
+                    }
+                    else if (item.linkage === 'url') 
+                        markdown.appendMarkdown(`\n- <a href=\"${item.attr}\">${item.attr}</a>`);
+                    else 
+                        markdown.appendMarkdown(`\n- ${item.attr}`);
+                }
+            }
+
+            if (entry.note)
+                markdown.appendMarkdown(`\n\n---\n\n#### Note:\n\n- ${entry.note}`);
+
+            if (entry?.warning)
+                markdown.appendMarkdown(`\n\n---\n\n> ⚠ **Warning**\n\n>${entry.warning}`);
+
         }
-
-        if (entry.note)
-            markdown.appendMarkdown(`\n\n---\n\n#### Note:\n\n- ${entry.note}`);
-
-        if (entry.warning)
-            markdown.appendMarkdown(`\n\n---\n\n> ⚠ **Warning**\n\n>${entry.warning}`)
-
-        return new vscode.Hover(markdown, entry.range);
+        return new vscode.Hover(markdown, entry?.range ?? authorEntry?.range);
     }
 
 //<label>TAGS</label>
@@ -115,17 +119,17 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             if (!description)
                 continue;
 
-            const symbol = await this.findFollowingSymbol(document, lineIndex + 1);
+            const symbolRange = await this.findFollowingSymbol(document, lineIndex + 1);
 
-            if (!symbol)
+            if (!symbolRange)
                 continue;
 
-            const params = this.parseParamsBetweenLines(document, lineIndex + 1, symbol.range.start.line);
-            const returnDescription = this.parseReturnBetweenLines(document, lineIndex + 1, symbol.range.start.line);
-            const note = this.parseNote(document, lineIndex + 1, symbol.range.start.line);
-            const warning = this.parseWarn(document, lineIndex + 1, symbol.range.start.line)
-            const see = this.parseSeeBetweenLines(document, lineIndex + 1, symbol.range.start.line);
-            const seealso = this.parseSeeAlsoBetweenLines(document, lineIndex + 1, symbol.range.start.line);
+            const params = this.parseParamsBetweenLines(document, lineIndex + 1, symbolRange.start.line);
+            const returnDescription = this.parseReturnBetweenLines(document, lineIndex + 1, symbolRange.start.line);
+            const note = this.parseNote(document, lineIndex + 1, symbolRange.start.line);
+            const warning = this.parseWarn(document, lineIndex + 1, symbolRange.start.line);
+            const see = this.parseSeeBetweenLines(document, lineIndex + 1, symbolRange.start.line);
+            const seealso = this.parseSeeAlsoBetweenLines(document, lineIndex + 1, symbolRange.start.line);
 
             entries.push({
                 description,
@@ -135,7 +139,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                 returnDescription,
                 note,
                 warning,
-                range: symbol.range
+                range: symbolRange
             });
         }
 
@@ -159,9 +163,9 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             if (!name)
                 continue;
 
-            const symbol = await this.findFollowingSymbol(document, lineIndex + 1);
+            const symbolRange = await this.findFollowingSymbol(document, lineIndex + 1);
 
-            if (!symbol)
+            if (!symbolRange)
                 continue;
 
             const attrs = CmlHoverProvider.parseAttributes(authorMatch[1]);
@@ -172,8 +176,8 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                     contact: attrs.contact,
                     repository: attrs.repository
                 },
-                range: symbol.range
-            })
+                range: symbolRange
+            });
         } 
 
         return authors;   
@@ -328,34 +332,48 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 //<label>SYMBOLS</label>
 //<desc>Tenho é medo disso</desc>
 //<span>
-    private async findFollowingSymbol(document: vscode.TextDocument, startLine: number): Promise<{ range: vscode.Range } | undefined> {
+    private async findFollowingSymbol(document: vscode.TextDocument, startLine: number): Promise<vscode.Range | undefined> {
         const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
             "vscode.executeDocumentSymbolProvider",
             document.uri
         );
 
-        if (!symbols)
-            return undefined;
+        const flatSymbols = symbols ? CmlHoverProvider.flattenSymbols(symbols) : [];
 
-        const flatSymbols = CmlHoverProvider.flattenSymbols(symbols);
-
-        let closest: vscode.DocumentSymbol | undefined;
-
-        for (const symbol of flatSymbols) {
-            if (symbol.selectionRange.start.line < startLine)
-                continue;
-
-
-            if (!closest || symbol.selectionRange.start.line < closest.selectionRange.start.line)
-                closest = symbol;
+        const candidates = flatSymbols.filter(symbol => symbol.selectionRange.start.line >= startLine);
+        if (candidates.length > 0) {
+            candidates.sort((left, right) => left.selectionRange.start.line - right.selectionRange.start.line);
+            return candidates[0].selectionRange;
         }
 
-        if (!closest)
-            return undefined;
+        return this.findFallbackSymbolRange(document, startLine);
+    }
 
-        return {
-            range: closest.selectionRange
-        };
+    private findFallbackSymbolRange(document: vscode.TextDocument, startLine: number): vscode.Range | undefined {
+        const declarationPattern = /\b(class|interface|struct|record|enum|trait|namespace|module|type|function|func|def|fn|procedure|sub|let|const|var|using|public|private|protected|internal|static|async|export|abstract|extern)\b/i;
+
+        for (let lineIndex = startLine; lineIndex < document.lineCount; lineIndex++) {
+            const line = document.lineAt(lineIndex).text;
+            const trimmed = line.trim();
+
+            if (!trimmed)
+                continue;
+
+            if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('#') || trimmed.startsWith(';'))
+                continue;
+
+            if (trimmed.startsWith('{') || trimmed.startsWith('}') || trimmed.startsWith(')') || trimmed.startsWith(']') || trimmed.startsWith('['))
+                continue;
+
+            if (declarationPattern.test(trimmed)) {
+                return new vscode.Range(
+                    new vscode.Position(lineIndex, 0),
+                    new vscode.Position(lineIndex, line.length)
+                );
+            }
+        }
+
+        return undefined;
     }
 
     public static flattenSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] {

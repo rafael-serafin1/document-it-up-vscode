@@ -1,14 +1,11 @@
 import * as vscode from 'vscode';
 import { CmlLabel, parseCmlLabels } from '../CmlParser';
-
-export interface CmlQuickPickItem extends vscode.QuickPickItem {
-  labelData: CmlLabel;
-}
+import { CmlQuickPickItem } from './interfaces/CmlNavigationInterfaces';
 
 //<label>QUICK_PICK_RELATED</label>
 //<span>
 
-//<summary>Build up quick pick item</summary>
+//<summary>Build up quick pick item using label data</summary>
 //<author contact="engelrafael03@gmail.com" repository="https://github.com/rafael-serafin1">Rafael Engel Serafin</author>
 export function buildQuickPickItem(label: CmlLabel): CmlQuickPickItem {
   const spanDescription = label.spans.length > 0

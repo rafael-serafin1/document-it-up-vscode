@@ -2,7 +2,7 @@
   "name": "cml-vscode",
   "displayName": "Document It Up",
   "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
-  "version": "0.5.1",
+  "version": "0.5.5",
   "publisher": "Skrom",
   "repository": {
     "type": "git",
@@ -88,7 +88,7 @@
         "command": "cml.searchByAuthor",
         "title": "CML: Search by Author's Name",
         "category": "CML",
-        "icon": "$(search)"
+        "icon": "$(search-fuzzy)"
       }
     ],
     "keybindings": [
@@ -105,7 +105,7 @@
       {
         "command": "cml.searchByAuthor",
         "key": "alt+i",
-        "when": "editorTextFocus"
+        "when": "editorFocus"
       }
     ],
     "menus": {

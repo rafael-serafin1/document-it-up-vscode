@@ -93,7 +93,7 @@ enum ProductType {
 };
 ```
 
-Run the **`CML: Search by Author's Name`** command and enter the author's name in the input box.
+Run the **`CML: Search by Author's Name`** (Alt + I) command and enter the author's name in the input box.
 
 ```
 Current Project
@@ -106,19 +106,23 @@ Current Project
 
 DBConnection    (CLASS)
 trim            (FUNCTION)
-ProductType     (ENUM)
 ```
 
 The extension scans the entire workspace for CML `<author>` tags and lists every documented symbol associated with the specified author.
 
 Selecting an item immediately opens the corresponding file and moves the cursor to the symbol declaration.
 
-This feature is especially useful for:
+Command button on right side, above mini map.
 
-- Tracking code ownership
-- Reviewing contributions from a specific developer
-- Navigating large collaborative projects
-- Finding related implementations maintained by the same author
+![Instruction 1](assets/images/author_search.png "CML: Search by Author's Name")
+
+Text box for author's name input.
+
+![Instruction 2](assets/images/author_input.png "Input Box")
+
+Searched an author's in project.
+
+![Instruction 3](assets/images/author_queried.png "Quick Pick Item")
 
 ---
 
