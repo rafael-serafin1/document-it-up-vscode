@@ -34,7 +34,26 @@ export const statusValues: string[] = [
   'deprecated',
   'bugged',
   'todo'
-]
+];
+
+export const pinTypes: string[] = [
+  'favorite',
+  'important',
+  'refactored',
+  'caution',
+  'reviewed',
+  'optimization',
+  'secured',
+  'performatic'
+];
+
+export const priority: string[] = [
+  'none',
+  'low',
+  'medium',
+  'high',
+  'urgent'
+];
 
 export class AttributeValueCompletionProvider implements vscode.CompletionItemProvider {
   private readonly attributeValues: Record<string, Record<string, string[]>> = {
@@ -43,6 +62,11 @@ export class AttributeValueCompletionProvider implements vscode.CompletionItemPr
     },
     license: {
       type: licenseAttrs
+    },
+    pin: {
+      as: pinTypes,
+      by: [],
+      priority: priority
     }
   };
 

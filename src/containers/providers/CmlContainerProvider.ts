@@ -21,6 +21,13 @@ export class CmlNavigationProvider
                     [],
                     "cml.showHierarchy",
                     "list-tree"
+                ),
+
+                new NavigationItem(
+                    "Jump to Entry",
+                    [],
+                    "cml.jumpToEntry",
+                    "sign-in"
                 )
             ]
         ),
@@ -35,7 +42,7 @@ export class CmlNavigationProvider
                     "search-fuzzy"
                 )
             ]
-        )
+        ),
     ];
 
     getTreeItem(element: NavigationItem): vscode.TreeItem {

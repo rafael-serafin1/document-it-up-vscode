@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { CmlNavigationProvider } from "./providers/CmlContainerProvider";
 
-export function CmlViewContainer() {
+export function CmlViewContainer(context: vscode.ExtensionContext) {
     const tree_provider = new CmlNavigationProvider();
     
-    vscode.window.registerTreeDataProvider("cml.docitup", tree_provider);
+    context.subscriptions.push(vscode.window.registerTreeDataProvider("cml.docitup", tree_provider));
 }

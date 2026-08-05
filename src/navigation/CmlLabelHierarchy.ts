@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { CmlLabel, parseCmlLabels } from '../CmlParser';
 import { buildQuickPickItem, revealLabel } from './CmlLabelNavigation';
-import { CmlQuickPickItem } from './interfaces/CmlNavigationInterfaces';
+import { CmlQuickPickLabelItem } from './interfaces/CmlNavigationInterfaces';
 
-function buildHierarchyItem(label: CmlLabel, path: CmlLabel[]): CmlQuickPickItem {
+function buildHierarchyItem(label: CmlLabel, path: CmlLabel[]): CmlQuickPickLabelItem {
   const item = buildQuickPickItem(label);
   const childrenLabel = label.children.length > 0 ? `(${label.children.length} child${label.children.length > 1 ? 'ren' : ''})` : '(leaf)';
   item.description = path.length === 0 ? `${childrenLabel} ${item.description ?? ''}`.trim() : `${childrenLabel} ${item.description ?? ''}`.trim();
@@ -33,7 +33,7 @@ export function ShowHierarchy() {
   }
 
   const showHierarchyLevel = (levelLabels: CmlLabel[], path: CmlLabel[] = []) => {
-      const quickPick = vscode.window.createQuickPick<CmlQuickPickItem>();
+      const quickPick = vscode.window.createQuickPick<CmlQuickPickLabelItem>();
       quickPick.placeholder = path.length === 0
         ? 'Select a parent label'
         : `Select a child label under ${path[path.length - 1].name}`;

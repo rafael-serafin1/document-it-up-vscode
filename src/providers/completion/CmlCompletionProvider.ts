@@ -27,6 +27,30 @@ export const cmlTagSuggestions: CmlTagSuggestion[] = [
     insertText: 'span>$0</span>'
   },
   {
+    label: 'author',
+    detail: 'Document the author',
+    documentation: 'Descreve quem implementou ou mantém um trecho.',
+    insertText: 'author>$0</author>'
+  },
+  {
+    label: 'entry',
+    detail: 'Mark an specific symbol as a entry point',
+    documentation: 'Marca um símbolo específico como sendo ponto de entrada.',
+    insertText: 'entry>$0</entry>'
+  },
+  {
+    label: 'exit',
+    detail: 'Mark an specific symbol or command line as a exit point',
+    documentation: 'Marca um símbolo ou linha de comando como sendo ponto de saída.',
+    insertText: 'exit>$0</exit>'
+  },
+  {
+    label: 'pin',
+    detail: 'Pins an specific line',
+    documentation: 'Coloca um pino em uma linha de comando específica.',
+    insertText: 'pin as="$0" />'
+  },
+  {
     label: 'summary',
     detail: 'Describe a symbol',
     documentation: 'Descreve uma função, variável, classe ou outro símbolo.',
@@ -91,12 +115,6 @@ export const cmlTagSuggestions: CmlTagSuggestion[] = [
     detail: 'Describe a specific exception',
     documentation: 'Descreve uma exceção específica.',
     insertText: 'exception named="Exception">$0</exception>'
-  },
-  {
-    label: 'author',
-    detail: 'Document the author',
-    documentation: 'Descreve quem implementou ou mantém um trecho.',
-    insertText: 'author>$0</author>'
   },
   {
     label: 'permission',

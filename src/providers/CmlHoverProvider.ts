@@ -16,6 +16,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 
         const markdown = new vscode.MarkdownString();
 
+        //catch all <since> tags
         if (sinceEntry) {
             if (sinceEntry?.since){
                 if (sinceEntry?.status && sinceEntry?.status.type)
@@ -24,6 +25,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             }
         }
         
+        //catch all <author> tags
         if (authorEntry?.author) {
             markdown.appendMarkdown(`## Author: **${authorEntry.author.name}**`);
             if (authorEntry.author.contact)
@@ -32,6 +34,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                 markdown.appendMarkdown(`\n\n-\trepository: [${authorEntry.author.name.toUpperCase()}'s Repository](${authorEntry.author.repository})`);
         }
 
+        // catch all common entries
         if (entry) {
             if (authorEntry?.author)
                 markdown.appendMarkdown(`\n\n---\n\n`);

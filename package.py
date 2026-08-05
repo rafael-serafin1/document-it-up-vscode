@@ -106,5 +106,6 @@ def main() -> int:
     return 0
 
 
+#<entry>script's entry point</entry>
 if __name__ == "__main__":
     sys.exit(main())

@@ -27,6 +27,13 @@ export interface CmlAuthorParsed {
   range: vscode.Range;
   lineNumber: number;
 }
+
+export interface CmlEntryTagParsed {
+  desc?: string;
+  lang: string;
+  range: vscode.Range;
+  lineNumber: number;
+}
 //</span>
 
 //<label>PATTERNS</label>
@@ -36,9 +43,6 @@ const labelPattern = /<label>([^<]+)<\/label>/i;
 const descPattern = /<desc>([^<]+)<\/desc>/i;
 const spanOpenPattern = /<span>/i;
 const spanClosePattern = /<\/span>/i;
-
-const authorPattern = /<author\s*([^>]*)>([^<]+)<\/author>/i;
-const authorAttrsPattern = /(contact|repository)\s*=\s*"([^"]+)"/gi;
 //</span>
 
 
@@ -201,5 +205,41 @@ export function parseCmlAuthors(document: vscode.TextDocument): CmlAuthorParsed[
   }
 
   return authors;
+}
+
+export function parseCmlEntryTag(document: vscode.TextDocument): CmlEntryTagParsed[] {
+  const entryTags: CmlEntryTagParsed[] = [];
+
+  for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+    const line = document.lineAt(lineIndex).text;
+    const comment = getCommentContent(line);
+
+    if (!comment)
+      continue;
+
+    const entryMatch = line.match(/<entry>(.*?)<\/entry>/i);
+    if (!entryMatch)
+      continue;
+
+    const desc = (entryMatch[1] || '').trim();
+    if (!desc)
+      continue;
+
+    const tagText = entryMatch[0];
+    const startCharacter = line.indexOf(tagText);
+    const entryRange = new vscode.Range(
+      new vscode.Position(lineIndex, startCharacter),
+      new vscode.Position(lineIndex, startCharacter + tagText.length)
+    );
+
+    entryTags.push({
+      desc,
+      lang: document.languageId,
+      range: entryRange,
+      lineNumber: lineIndex + 1,
+    });
+  }
+
+  return entryTags;
 }
 //</span>
