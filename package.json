@@ -2,7 +2,7 @@
   "name": "cml-vscode",
   "displayName": "Document It Up",
   "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
-  "version": "0.8.2",
+  "version": "0.8.5",
   "publisher": "Skrom",
   "repository": {
     "type": "git",
@@ -114,6 +114,12 @@
         "title": "CML: Jump To Entry",
         "category": "CML",
         "icon": "$(sign-in)"
+      },
+      {
+        "command": "cml.jumpToExit",
+        "title": "CML: Jump To Exit",
+        "category": "CML",
+        "icon": "$(sign-out)"
       }
     ],
     "keybindings": [

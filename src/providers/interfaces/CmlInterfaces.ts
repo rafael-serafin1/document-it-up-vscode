@@ -29,6 +29,11 @@ export interface CmlEntry {
     lang: string;
 }
 
+export interface CmlExit {
+    desc?: string;
+    lang: string;
+}
+
 //</span>
 
 //<label>HOVER_MARKDOWN_INTERFACES</label>
@@ -52,6 +57,11 @@ export interface AuthorEntry {
 
 export interface EntryEntry {
     entry?: CmlEntry;
+    range: vscode.Range;
+}
+
+export interface ExitEntry {
+    exit?: CmlExit;
     range: vscode.Range;
 }
 

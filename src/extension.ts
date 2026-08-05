@@ -10,6 +10,7 @@ import { SearchByAuthorsName } from './navigation/CmlAuthorSearch';
 import { CmlNavigationProvider } from './containers/providers/CmlContainerProvider';
 import { CmlViewContainer } from './containers/CmlContainer';
 import { JumpToEntry } from './navigation/CmlJumpToEntry';
+import { JumpToExit } from './navigation/CmlJumpToExit';
 
 export interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
@@ -33,6 +34,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   //<summary>Jump to Entry</summary>
   const jumpToEntryCommand = vscode.commands.registerCommand('cml.jumpToEntry', async () => { await JumpToEntry(); });
+
+  //<summary>Jump to Exit</summary>
+  const jumpToExitCommand = vscode.commands.registerCommand('cml.jumpToExit', async () => { await JumpToExit(); })
 
   CmlViewContainer(context);
 
@@ -60,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
     new CmlHoverProvider()
   );
 
+  //<summary>Colocar comandos aqui faz com que eles sejam dispostos como botões clicáveis na barra acima do mini mapa</summary>
   context.subscriptions.push(showLabelsCommand, showHierarchyCommand, searchByAuthorCommand, tagCompletionProvider, attributeCompletionProvider, attributeValueCompletionProvider, hoverProvider);
 }
 

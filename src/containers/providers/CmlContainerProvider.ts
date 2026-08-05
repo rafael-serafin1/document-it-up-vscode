@@ -28,6 +28,13 @@ export class CmlNavigationProvider
                     [],
                     "cml.jumpToEntry",
                     "sign-in"
+                ),
+
+                new NavigationItem(
+                    "Jump to Exit",
+                    [],
+                    "cml.jumpToExit",
+                    "sign-out"
                 )
             ]
         ),

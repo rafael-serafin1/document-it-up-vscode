@@ -122,6 +122,32 @@ char[] split(char *str, char splitter) {
 
 ---
 
+## `<author>`**
+
+Descreve quem foi o autor de tal parte do código. Pode ser usado em `<span>`.
+
+### Atributo
+
+`contact`:
+Define um meio de contato com o autor. Pode ser email, número de telefone, etc.
+
+`repository`:
+Define uma url para o Github do autor.
+
+### Exemplo
+
+```cs
+//<author contact="lucão123@example.com" repository="https://github.com/lucas-lucros$$.git">Lucão</author>
+public class Carro {
+    private string placa;
+    private int chasi;
+    private Marcas marca;
+};
+```
+
+
+---
+
 ## `<next>`**
 
 Define um fluxo linear único de documentação.
@@ -413,7 +439,7 @@ Define o tipo de status do símbolo logo abaixo. Valores possíveis:
 deprecated
 bugged
 todo
-thread-safe
+thread-unsafe
 ```
 
 ### Exemplo
@@ -453,31 +479,6 @@ Define o nome da exceção.
 
 ```cpp
 //<exception named="std::invalid_argument">Argumento com valor inválido para função.</exception>
-```
-
----
-
-## `<author>`**
-
-Descreve quem foi o autor de tal parte do código. Pode ser usado em `<span>`.
-
-### Atributo
-
-`contact`:
-Define um meio de contato com o autor. Pode ser email, número de telefone, etc.
-
-`repository`:
-Define uma url para o Github do autor.
-
-### Exemplo
-
-```cs
-//<author contact="lucão123@example.com" repository="https://github.com/lucas-lucros$$.git">Lucão</author>
-public class Carro {
-    private string placa;
-    private int chasi;
-    private Marcas marca;
-};
 ```
 
 ---

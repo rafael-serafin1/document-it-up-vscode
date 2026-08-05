@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CmlAuthor } from './providers/interfaces/CmlInterfaces';
 import { CmlHoverProvider } from './providers/CmlHoverProvider';
+import { CmlAuthorParsed, CmlEntryTagParsed, CmlExitTagParsed } from './interfaces/CmlParseInterfaces';
 
 //<label>INTERFACES</label>
 //<desc>Interfaces responsáveis pelas tags span e label</desc>
@@ -18,21 +19,6 @@ export interface CmlLabel {
   spans: CmlSpan[];
   parent?: CmlLabel;
   children: CmlLabel[];
-}
-
-export interface CmlAuthorParsed {
-  name: string;
-  contact?: string;
-  repository?: string;
-  range: vscode.Range;
-  lineNumber: number;
-}
-
-export interface CmlEntryTagParsed {
-  desc?: string;
-  lang: string;
-  range: vscode.Range;
-  lineNumber: number;
 }
 //</span>
 
@@ -241,5 +227,41 @@ export function parseCmlEntryTag(document: vscode.TextDocument): CmlEntryTagPars
   }
 
   return entryTags;
+}
+
+export function parseCmlExitTag(document: vscode.TextDocument): CmlExitTagParsed[] {
+  const exitTags: CmlExitTagParsed[] = [];
+
+  for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+    const line = document.lineAt(lineIndex).text;
+    const comment = getCommentContent(line);
+
+    if (!comment)
+      continue;
+
+    const exitMatch = line.match(/<exit>(.*?)<\/exit>/i);
+    if (!exitMatch)
+      continue;
+
+    const desc = (exitMatch[1] || '').trim();
+    if (!desc)
+      continue;
+
+    const tagText = exitMatch[0];
+    const startCharacter = line.indexOf(tagText);
+    const entryRange = new vscode.Range(
+      new vscode.Position(lineIndex, startCharacter),
+      new vscode.Position(lineIndex, startCharacter + tagText.length)
+    );
+
+    exitTags.push({
+      desc,
+      lang: document.languageId,
+      range: entryRange,
+      lineNumber: lineIndex + 1,
+    });
+  }
+
+  return exitTags;
 }
 //</span>
