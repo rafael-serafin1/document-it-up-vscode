@@ -51,10 +51,10 @@ export const cmlTagSuggestions: CmlTagSuggestion[] = [
     insertText: 'pin as="$0" />'
   },
   {
-    label: 'summary',
+    label: 'synopsis',
     detail: 'Describe a symbol',
     documentation: 'Descreve uma função, variável, classe ou outro símbolo.',
-    insertText: 'summary>$0</summary>'
+    insertText: 'synopsis>$0</synopsis>'
   },
   {
     label: 'param',

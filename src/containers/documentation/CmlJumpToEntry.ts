@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { CmlQuickPickEntryItem, EntrySearchResult } from './interfaces/CmlNavigationInterfaces';
-import { parseCmlEntryTag } from '../CmlParser';
-import { CmlEntry } from '../providers/interfaces/CmlInterfaces';
+import { CmlQuickPickEntryItem, EntrySearchResult } from './interfaces/CmlDocumentationInterfaces';
+import { parseCmlEntryTag } from '../../CmlParser';
+import { CmlEntry } from '../../providers/interfaces/CmlInterfaces';
 
 function buildQuickPickEntryItem(entry: EntrySearchResult): CmlQuickPickEntryItem {
     return {

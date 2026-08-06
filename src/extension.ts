@@ -4,13 +4,13 @@ import { CmlCompletionProvider } from './providers/completion/CmlCompletionProvi
 import { AttributeCompletionProvider } from './providers/completion/CmlAttributeCompletionProvider';
 import { AttributeValueCompletionProvider } from './providers/completion/CmlAttributeValuesCompletionProvider';
 import { CmlHoverProvider } from './providers/CmlHoverProvider';
-import { ShowLabels } from './navigation/CmlLabelNavigation';
-import { ShowHierarchy } from './navigation/CmlLabelHierarchy';
-import { SearchByAuthorsName } from './navigation/CmlAuthorSearch';
+import { ShowLabels } from './containers/navigation/CmlLabelNavigation';
+import { ShowHierarchy } from './containers/navigation/CmlLabelHierarchy';
+import { SearchByAuthorsName } from './containers/documentation/CmlAuthorSearch';
 import { CmlNavigationProvider } from './containers/providers/CmlContainerProvider';
 import { CmlViewContainer } from './containers/CmlContainer';
-import { JumpToEntry } from './navigation/CmlJumpToEntry';
-import { JumpToExit } from './navigation/CmlJumpToExit';
+import { JumpToEntry } from './containers/documentation/CmlJumpToEntry';
+import { JumpToExit } from './containers/documentation/CmlJumpToExit';
 
 export interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
@@ -20,25 +20,37 @@ export interface CmlQuickPickItem extends vscode.QuickPickItem {
 //<desc>Corpo da extensão</desc>
 //<span>
 
-//<summary>Ativa a extensão assim que abre o VSCode</summary>
+//<synopsis>Ativa a extensão assim que abre o VS Code</synopsis>
 //<entry>Função de entrada da extensão</entry>
 export function activate(context: vscode.ExtensionContext) {
-  //<summary>Show labels command application</summary>
+//<label>REGISTRO_DE_COMANDOS</label>
+//<desc>Registra todos os comandos pelo id definido em package.json</desc>
+//<span>
+
+  //<synopsis>Show labels command application</synopsis>
   const showLabelsCommand = vscode.commands.registerCommand('cml.showLabels', async () => { ShowLabels(); });
 
-  //<summary>Show hierarchy command application</summary>
+  //<synopsis>Show hierarchy command application</synopsis>
   const showHierarchyCommand = vscode.commands.registerCommand('cml.showHierarchy', async () => { ShowHierarchy() });
 
-  //<summary>Search authors command application</summary>
+  //<synopsis>Search authors command application</synopsis>
   const searchByAuthorCommand = vscode.commands.registerCommand('cml.searchByAuthor', async () => { await SearchByAuthorsName(); });
 
-  //<summary>Jump to Entry</summary>
+  //<synopsis>Jump to Entry</synopsis>
   const jumpToEntryCommand = vscode.commands.registerCommand('cml.jumpToEntry', async () => { await JumpToEntry(); });
 
-  //<summary>Jump to Exit</summary>
+  //<synopsis>Jump to Exit</synopsis>
   const jumpToExitCommand = vscode.commands.registerCommand('cml.jumpToExit', async () => { await JumpToExit(); })
 
-  CmlViewContainer(context);
+//</span>
+
+//<label>REGISTRO_DE_VIEW_CONTAINER</label>
+//<desc>Registra um botão da barra lateral (a mesma que fica o Explorer, Search, Source Control, etc), chamado de View Container</desc>
+//<span>
+
+CmlViewContainer(context);
+ 
+// </span>
 
   const tagCompletionProvider = vscode.languages.registerCompletionItemProvider(
     [{ scheme: 'file' }, { scheme: 'untitled' }],
@@ -64,10 +76,13 @@ export function activate(context: vscode.ExtensionContext) {
     new CmlHoverProvider()
   );
 
-  //<summary>Colocar comandos aqui faz com que eles sejam dispostos como botões clicáveis na barra acima do mini mapa</summary>
+  //<synopsis>Colocar comandos aqui faz com que eles sejam dispostos como botões clicáveis na barra acima do mini mapa</synopsis>
   context.subscriptions.push(showLabelsCommand, showHierarchyCommand, searchByAuthorCommand, tagCompletionProvider, attributeCompletionProvider, attributeValueCompletionProvider, hoverProvider);
 }
 
+//<synopsis>Função responsável pela desativação da extensão.</synopsis>
+//<note>Mesmo que não tenha código dentro, sua declaração ainda é necessária.</note>
+//<warn>Se você remover, vai gerar erro no funcionamento da extensão. Talvez nem se quer seja possível compilar sem essa função.</warn>
 //<exit>Função de suspensão da extensão</exit>
 export function deactivate() {}
 

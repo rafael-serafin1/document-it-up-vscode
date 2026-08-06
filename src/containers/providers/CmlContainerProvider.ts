@@ -21,20 +21,6 @@ export class CmlNavigationProvider
                     [],
                     "cml.showHierarchy",
                     "list-tree"
-                ),
-
-                new NavigationItem(
-                    "Jump to Entry",
-                    [],
-                    "cml.jumpToEntry",
-                    "sign-in"
-                ),
-
-                new NavigationItem(
-                    "Jump to Exit",
-                    [],
-                    "cml.jumpToExit",
-                    "sign-out"
                 )
             ]
         ),
@@ -47,6 +33,20 @@ export class CmlNavigationProvider
                     [],
                     "cml.searchByAuthor",
                     "search-fuzzy"
+                ),
+                
+                new NavigationItem(
+                    "Jump to Entry",
+                    [],
+                    "cml.jumpToEntry",
+                    "sign-in"
+                ),
+
+                new NavigationItem(
+                    "Jump to Exit",
+                    [],
+                    "cml.jumpToExit",
+                    "sign-out"
                 )
             ]
         ),

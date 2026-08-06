@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { parseCmlAuthors } from '../CmlParser';
-import { CmlHoverProvider } from '../providers/CmlHoverProvider';
-import { CmlAuthorQuickPickItem, AuthorSearchResult } from './interfaces/CmlNavigationInterfaces';
+import { parseCmlAuthors } from '../../CmlParser';
+import { CmlHoverProvider } from '../../providers/CmlHoverProvider';
+import { CmlAuthorQuickPickItem, AuthorSearchResult } from './interfaces/CmlDocumentationInterfaces';
 
 function buildAuthorsWorkQuickPick(author: AuthorSearchResult): CmlAuthorQuickPickItem {
     const label = author.author?.name ?? 'Anonymous Author';

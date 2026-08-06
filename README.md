@@ -15,7 +15,7 @@ Install the extension and start writing CML tags inside your comments.
 //<desc>String manipulation utilities.</desc>
 //<span>
 
-//<summary>Removes whitespace.</summary>
+//<synopsis>Removes whitespace.</synopsis>
 char* trim(char* str);
 
 //</span>
@@ -67,7 +67,7 @@ Organize large labels into logical subsections using children labels.
 //</span>
 ```
 
-Those are listed in a dedicated navigation panel, allowing you to jump directly to important sections of the current file with a single click.
+Those are listed in a dedicated navigation panel, allowing you to jump directly to important sections of the current workspace with a single click.
 
 ![Hierarchy Navigation Labels](assets/images/hierarchy.png "CML Labels Hierarchy")
 
@@ -81,13 +81,13 @@ Locate every symbol written by a specific developer using the `<author>` tag.
 
 ```cpp
 //<author repository="https://github.com/rafael-serafin1">Skrom</author>
-//<summary>Represents a database connection.</summary>
+//<synopsis>Represents a database connection.</synopsis>
 class DBConnection {
     ...
 };
 
 //<author>Skrom</author>
-//<summary>Removes leading and trailing whitespace.</summary>
+//<synopsis>Removes leading and trailing whitespace.</synopsis>
 char* trim(char* text);
 
 //<author>John</author>
@@ -134,7 +134,7 @@ Searched an author's in project.
 Document functions, classes, structures, variables, enumerations, namespaces, and other language constructs using semantic tags.
 
 ```cpp
-//<summary>Removes leading and trailing whitespace.</summary>
+//<synopsis>Removes leading and trailing whitespace.</synopsis>
 //<param name="text">String to trim.</param>
 //<return>The trimmed string.</return>
 char* trim(char* text);

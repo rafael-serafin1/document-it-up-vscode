@@ -30,11 +30,8 @@ export const licenseAttrs: string[] = [
   'Eclipse Public License'
 ];
 
-export const statusValues: string[] = [
-  'deprecated',
-  'bugged',
-  'todo'
-];
+export const statusValues: string[] = 
+    ["deprecated", "bugged", "todo", "thread-safe", "thread-unsafe", "thread-safe", "draft", "implemented", "testing-phase", "stable", "obsolete", "removed", "experimental", "legacy", "frozen", "unsafe", "platform-specific"];
 
 export const pinTypes: string[] = [
   'favorite',

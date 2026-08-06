@@ -1,28 +1,22 @@
-import * as vscode from 'vscode';
-import { CmlLabel } from '../../CmlParser';
-import { AuthorEntry, EntryEntry, ExitEntry } from '../../providers/interfaces/CmlInterfaces';
+import * as vscode from "vscode"
+import { AuthorEntry, EntryEntry, ExitEntry } from "../../../providers/interfaces/CmlInterfaces";
 
-//<summary>Quick Pick Labels</summary>
-export interface CmlQuickPickLabelItem extends vscode.QuickPickItem {
-  labelData: CmlLabel;
-}
-
-//<summary>Quick Pick Authors</summary>
+//<synopsis>Quick Pick Authors</synopsis>
 export interface CmlAuthorQuickPickItem extends vscode.QuickPickItem {
     authorData: AuthorSearchResult;
 }
 
-//<summary>Quick Pick Entry</summary>
+//<synopsis>Quick Pick Entry</synopsis>
 export interface CmlQuickPickEntryItem extends vscode.QuickPickItem {
     entryData: EntrySearchResult;
 }
 
-//<summary>Quick Pick Exit</summary>
+//<synopsis>Quick Pick Exit</synopsis>
 export interface CmlQuickPickExitItem extends vscode.QuickPickItem {
     exitData: ExitSearchResult;
 }
 
-//<summary>Quick Pick Author's Data Interface</summary>
+//<synopsis>Quick Pick Author's Data Interface</synopsis>
 export interface AuthorSearchResult extends AuthorEntry {
     uri: vscode.Uri;
     filePath: string;
@@ -30,14 +24,14 @@ export interface AuthorSearchResult extends AuthorEntry {
     symbolType?: string;
 }
 
-//<summary>Quick Pick Entry Data Interface</summary>
+//<synopsis>Quick Pick Entry Data Interface</synopsis>
 export interface EntrySearchResult extends EntryEntry {
     uri: vscode.Uri;
     filePath: string;
     lineNumber: number;
 }
 
-//<summary>Quick Pick Exit Data Interface</summary>
+//<synopsis>Quick Pick Exit Data Interface</synopsis>
 export interface ExitSearchResult extends ExitEntry {
     uri: vscode.Uri;
     filePath: string;

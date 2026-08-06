@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { parseCmlExitTag } from '../CmlParser';
-import { CmlQuickPickExitItem, ExitSearchResult } from './interfaces/CmlNavigationInterfaces';
+import { parseCmlExitTag } from '../../CmlParser';
+import { CmlQuickPickExitItem, ExitSearchResult } from './interfaces/CmlDocumentationInterfaces';
 
 function buildQuickPickExitItem(exit: ExitSearchResult): CmlQuickPickExitItem {
     return {

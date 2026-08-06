@@ -36,34 +36,32 @@ const spanClosePattern = /<\/span>/i;
 //<desc>Funções de ajuda para o parser</desc>
 //<span>
 
-///<summary>Verifica se a tag está dentro dos limites do comentário.</summary>
-function getCommentContent(line: string): string | undefined {
-  const trimmed = line.trim();
+///<synopsis>Verifica se a tag está dentro dos limites do comentário.</synopsis>
+function getCommentContent(line: string): string |undefined {
+    const trimmed = line.trim();
 
-  // //
-  if (trimmed.startsWith("//"))
-    return trimmed.substring(2).trim();
+    if (trimmed.startsWith("//"))
+        return trimmed.slice(2).trim();
 
-  if (trimmed.startsWith("/*") && trimmed.endsWith("*/"))
-    return trimmed.substring(2, -2).trim();
+    if (trimmed.startsWith("/*") && trimmed.endsWith("*/"))
+        return trimmed.slice(2, -2).trim();
 
-  // #
-  if (trimmed.startsWith("#"))
-    return trimmed.substring(1).trim();
+    if (trimmed.startsWith("#"))
+        return trimmed.slice(1).trim();
 
-  // ;
-  if (trimmed.startsWith(";"))
-    return trimmed.substring(1).trim();
+    if (trimmed.startsWith(";"))
+        return trimmed.slice(1).trim();
 
-  // *
-  if (trimmed.startsWith("*"))
-    return trimmed.substring(1).trim();
+    if (trimmed.startsWith("*"))
+        return trimmed.slice(1).trim();
 
-  // (* *)
-  if (trimmed.startsWith("(*") && trimmed.endsWith("*)"))
-    return trimmed.slice(2, -2).trim();
+    if (trimmed.startsWith("(*") && trimmed.endsWith("*)"))
+        return trimmed.slice(2, -2).trim();
 
-  return undefined;
+    if (trimmed.startsWith("<!--") && trimmed.endsWith("-->"))
+        return trimmed.slice(4, -3).trim();
+
+    return undefined;
 }
 //</span>
 
@@ -85,7 +83,7 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
     if (!comment)
       continue;
 
-    const labelMatch = labelPattern.exec(line);
+    const labelMatch = labelPattern.exec(comment);
     if (labelMatch) {
       const name = labelMatch[1].trim();
       if (!name)
@@ -109,7 +107,7 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
     }
 
     if (currentLabel) {
-      const descMatch = descPattern.exec(line);
+      const descMatch = descPattern.exec(comment);
       if (descMatch) {
         currentLabel.description = descMatch[1].trim();
         continue;
@@ -133,7 +131,7 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
       continue;
     }
 
-    if (spanClosePattern.test(line) && openSpanStack.length > 0) {
+    if (spanClosePattern.test(comment) && openSpanStack.length > 0) {
       const activeSpan = openSpanStack.pop();
       if (!activeSpan)
         continue;

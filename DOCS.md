@@ -46,7 +46,7 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 ### Tags de documentação
 
 ```
-<summary>
+<synopsis>
 <param>
 <return>
 <see>
@@ -192,6 +192,9 @@ reviewed
 optimization
 secured
 performatic
+hotspot
+critical
+dirty
 ```
 
 `by`:
@@ -245,21 +248,21 @@ pub fn shutdown() {
 
 ---
 
-## `<summary>`**
+## `<synopsis>`**
 
 Define uma descrição, detalhada ou não, de uma variável, função, classe, struct, etc.
 
 ### Exemplo
 
 ```cpp
-//<summary>Configurações de uso para função `void trim(...)`</summary>
+//<synopsis>Configurações de uso para função `void trim(...)`</synopsis>
 enum TRIM_CONFIGS {
     ONLY_WHITESPACES = 0,
     ONLY_ESCAPE_SEQUENCES = 1,
     WHITESPACES_AND_ESCAPE_SEQUENCES = 2
 };
 
-//<summary>Função responsável por remover todos os espaços em branco de uma string.</summary>
+//<synopsis>Função responsável por remover todos os espaços em branco de uma string.</synopsis>
 void trim(char *str, TRIM_CONFIGS config = TRIM_CONFIG::ONLY_WHITESPACES) {
     ...
 }
@@ -396,7 +399,7 @@ Se não houver uma etiqueta no escopo atual com o nome entregue logo após o '#'
 
 ## `<example>`
 
-Define um exemplo que pode ser útil no entendimento de como usar uma parte de código.
+Define um exemplo que pode ser útil no entendimento de como usar um símbolo.
 
 ### Exemplo
 
@@ -439,7 +442,19 @@ Define o tipo de status do símbolo logo abaixo. Valores possíveis:
 deprecated
 bugged
 todo
+thread-safe
 thread-unsafe
+draft
+implemented
+testing
+stable
+obsolete
+removed
+experimental
+legacy
+frozen
+unsafe
+platform-specific
 ```
 
 ### Exemplo
@@ -452,8 +467,8 @@ type Terminal = {
     Left: int
 }
 
-//<status type="deprecated" />
-//<since>19.2.10</since>
+//<status type="deprecated">Marked for removal in 0.3.5</status>
+//<since>0.2.10</since>
 let consoleSize(): Terminal =
     let pos = Console.GetCursorPosition()
     match pos with
@@ -462,6 +477,56 @@ let consoleSize(): Terminal =
             Top = t
             Left = l
         }
+```
+
+---
+
+## `<platform>`
+
+Define como um símbolo se comporta em um ambiente específico.
+
+### Atributos
+
+`environment`:
+Toma um ambiente como alvo para a descrição seguinte. Valores possíveis:
+```
+windows
+linux
+macos
+android
+ios
+wasm
+browser
+node
+win32
+uwp
+posix
+unix
+cuda
+opengl
+vulkan
+directx
+x11
+wayland
+```
+
+`support`:
+Define se um símbolo tem suporte para um ambiente específicado. Valores possíveis:
+```
+true
+false
+partial
+experimental
+```
+
+### Exemplo
+
+```rs 
+//<platform domain="win32">Utiliza PowerShell para criar uma pasta</platform>
+//<platform domain="linux">Utiliza comando 'mkdir' para criar um diretório</platform>
+pub fn make_dir(path: &str) {
+    _mkdir(path);
+}
 ```
 
 ---
@@ -491,21 +556,6 @@ Define quem possui permissões de uso.
 
 ```rs
 //<access>admin</access>
-```
-
----
-
-## `<platform>`
-
-Define a plataforma a qual uma parte do código pode ser utilizada.
-
-### Exemplo
-
-```rs 
-//<platform>Windows</platform>
-pub fn make_dir(path: &str) {
-    _mkdir(path);
-}
 ```
 
 ---
