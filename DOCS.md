@@ -401,6 +401,11 @@ Se não houver uma etiqueta no escopo atual com o nome entregue logo após o '#'
 
 Define um exemplo que pode ser útil no entendimento de como usar um símbolo.
 
+### Atributos
+
+`lang`:
+Específica a linguagem usada no exemplo.
+
 ### Exemplo
 
 ```cpp
@@ -488,7 +493,7 @@ Define como um símbolo se comporta em um ambiente específico.
 ### Atributos
 
 `environment`:
-Toma um ambiente como alvo para a descrição seguinte. Valores possíveis:
+Toma um ambiente como alvo para a descrição seguinte. Não pode existir sem o atributo `support`. Valores possíveis:
 ```
 windows
 linux
@@ -511,7 +516,7 @@ wayland
 ```
 
 `support`:
-Define se um símbolo tem suporte para um ambiente específicado. Valores possíveis:
+Define se um símbolo tem suporte para um ambiente específicado. Não pode existir sem o atributo `environment`. Valores possíveis:
 ```
 true
 false
@@ -522,8 +527,8 @@ experimental
 ### Exemplo
 
 ```rs 
-//<platform domain="win32">Utiliza PowerShell para criar uma pasta</platform>
-//<platform domain="linux">Utiliza comando 'mkdir' para criar um diretório</platform>
+//<platform environment="win32">Utiliza PowerShell para criar uma pasta</platform>
+//<platform environment="linux">Utiliza comando 'mkdir' para criar um diretório</platform>
 pub fn make_dir(path: &str) {
     _mkdir(path);
 }

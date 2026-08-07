@@ -51,3 +51,25 @@ export function styleText(style: Style, text: string): string {
 
     return `${entry}${code}m${text}${escape}`;
 }
+
+export function TrimCommentSection(text: string): string {
+    return text
+        .split(/\r?\n/)
+        .map(line =>
+            line
+                .trimStart()
+                .replace(/^\/\/+\s*/, "")
+                .replace(/^\/\*+\s*/, "")
+                .replace(/^\*+\s*/, "")
+                .replace(/^#+\s*/, "")
+                .replace(/^;+\s*/, "")
+                .replace(/^<!--\s*/, "")
+                .replace(/\s*-->$/, "")
+                .replace(/^(\*+\s*)/, "")
+                .replace(/\s*\*\/$/, "")
+                .replace(/^\(\*\s*/, "")
+                .replace(/\s*\*\)$/, "")
+        )
+        .join("\n")
+        .trim();
+}

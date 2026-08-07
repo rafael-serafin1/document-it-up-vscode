@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AttributesDefinition, licenseAttrs, seeAttr } from './CmlAttributeValuesCompletionProvider';
+import { AttributesDefinition, environment, licenseAttrs, seeAttr, support } from './CmlAttributeValuesCompletionProvider';
 
 const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
   param: [
@@ -43,6 +43,18 @@ const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
       name: 'type',
       desc: 'Define o tipo de licença usado.',
       values: licenseAttrs
+    }
+  ],
+  platform: [
+    {
+      name: 'environment',
+      desc: 'Descreve o ambiente do comportamento.',
+      values: environment
+    },
+    {
+      name: 'support',
+      desc: 'Descreve o suporte para tal ambiente.',
+      values: support
     }
   ]
 };

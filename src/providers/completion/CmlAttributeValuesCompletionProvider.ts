@@ -52,6 +52,34 @@ export const priority: string[] = [
   'urgent'
 ];
 
+export const environment: string[] = [
+  'windows',
+  'linux',
+  'macos',
+  'android',
+  'ios',
+  'wasm',
+  'browser',
+  'node',
+  'win32',
+  'uwp',
+  'posix',
+  'unix',
+  'cuda',
+  'opengl',
+  'vulkan',
+  'directx',
+  'x11',
+  'wayland'
+];
+
+export const support: string[] = [
+  'true',
+  'false',
+  'partial',
+  'experimental'
+]
+
 export class AttributeValueCompletionProvider implements vscode.CompletionItemProvider {
   private readonly attributeValues: Record<string, Record<string, string[]>> = {
     status: {
@@ -64,6 +92,10 @@ export class AttributeValueCompletionProvider implements vscode.CompletionItemPr
       as: pinTypes,
       by: [],
       priority: priority
+    },
+    platform: {
+      environment: environment,
+      support: support
     }
   };
 

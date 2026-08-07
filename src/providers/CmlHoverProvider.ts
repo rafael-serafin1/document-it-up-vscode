@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { SynopsisEntry, CmlAuthor, CmlParam, CmlSee, AuthorEntry, SinceEntry, CmlStatus, CmlPlatform, StatusEntry } from './interfaces/CmlInterfaces';
-import { Contains, Style, styleText } from '../utils/Utils';
-import { statusValues } from './completion/CmlAttributeValuesCompletionProvider';
+import { SynopsisEntry, CmlAuthor, CmlParam, CmlSee, AuthorEntry, SinceEntry, CmlStatus, CmlPlatform, StatusEntry, CmlExample } from './interfaces/CmlInterfaces';
+import { Contains, Style, styleText, TrimCommentSection } from '../utils/Utils';
+import { environment, statusValues, support } from './completion/CmlAttributeValuesCompletionProvider';
 
 //<label>HOVER_PROVIDER</label>
 //<desc>Provedor de conteúdo para o Hover</desc>
@@ -34,6 +34,15 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         if (sinceEntry) 
             if (sinceEntry?.since)
                 markdown.appendMarkdown(`\n*since ${sinceEntry.since}*\n\n---\n\n`);
+
+        if (statusEntry?.platform) {
+            statusEntry.platform.forEach(plat => {
+                const support = plat.support ?? "Not specified";
+                const desc = plat.desc ?? "No description";
+                markdown.appendMarkdown(`\n\n### Platform ${plat.platform} - ${support}\n${desc}`);
+            });
+            markdown.appendMarkdown(`\n\n---\n\n`);
+        }
         
         //catch all <author> tags
         if (authorEntry?.author) {
@@ -61,6 +70,14 @@ export class CmlHoverProvider implements vscode.HoverProvider {
 
             if (entry.returnDescription)
                 markdown.appendMarkdown(`\n\n---\n\n### Return\n\n${entry.returnDescription}`);
+
+            if (entry.examples && entry.examples.length > 0) {
+                markdown.appendMarkdown(`\n\n---\n\n### Examples\n`);
+                for (const example of entry.examples) {
+                    const language = example.lang ? example.lang : '';
+                    markdown.appendMarkdown(`\n\n\`\`\`${language}\n${example.desc}\n\`\`\``);
+                }
+            }
 
             if (entry.see.length > 0) {
                 markdown.appendMarkdown(`\n\n---\n\n### You should see these\n`);
@@ -185,10 +202,10 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             if (!synopsisMatch)
                 continue;
 
-            const description = synopsisMatch[1].trim();
+            let description = synopsisMatch[1].trim();
 
             if (!description)
-                continue;
+                description = "No synopsis.";
 
             const symbolRange = await this.findFollowingSymbol(document, lineIndex + 1);
 
@@ -199,6 +216,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
             const returnDescription = this.parseReturnBetweenLines(document, lineIndex + 1, symbolRange.start.line);
             const note = this.parseNote(document, lineIndex + 1, symbolRange.start.line);
             const warning = this.parseWarn(document, lineIndex + 1, symbolRange.start.line);
+            const examples = this.parseExampleBetweenLines(document, lineIndex + 1, symbolRange.start.line);
             const see = this.parseSeeBetweenLines(document, lineIndex + 1, symbolRange.start.line);
             const seealso = this.parseSeeAlsoBetweenLines(document, lineIndex + 1, symbolRange.start.line);
 
@@ -210,6 +228,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                 returnDescription,
                 note,
                 warning,
+                examples,
                 range: symbolRange
             });
         }
@@ -331,6 +350,44 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return undefined;
     }
 
+    //<synopsis>Entrada de dados</synopsis>
+    //<example lang="ts">
+    //  const examples = this.parseExampleBetweenLines(document, lineIndex + 1, symbolRange.range.end);
+    //  for (const example of examples) {
+    //      ...
+    //  }
+    //</example>
+    private parseExampleBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlExample[] {
+        const examples: CmlExample[] = [];
+
+        if (startLine >= document.lineCount)
+            return examples;
+
+        const sourceRange = new vscode.Range(
+            new vscode.Position(startLine, 0),
+            new vscode.Position(Math.min(endLine, document.lineCount), 0)
+        );
+
+        const text = document.getText(sourceRange);
+        const exampleRegex = /<example\b([^>]*)>([\s\S]*?)<\/example>/gi;
+
+        for (const match of text.matchAll(exampleRegex)) {
+            const rawAttributes = match[1] ?? '';
+            const langMatch = rawAttributes.match(/\blang\s*=\s*"([^"]*)"/i);
+            const desc = TrimCommentSection(match[2].replace(/\r?\n/g, '\n').trim());
+
+            if (!desc)
+                continue;
+
+            examples.push({
+                desc,
+                lang: langMatch?.[1]?.trim()
+            });
+        }
+
+        return examples;
+    }
+
     //<synopsis>Parseia as tags 'note'</synopsis>
     private parseNote(document: vscode.TextDocument, startLine: number, endLine: number): string | undefined {
         const noteRegex = /<note>(.*?)<\/note>/i;
@@ -426,6 +483,7 @@ export class CmlHoverProvider implements vscode.HoverProvider {
     //<synopsis>Parseia a tag 'status'</synopsis>
     //<since>0.6.2</since>
     //<status type="deprecated">Marked for removal in 0.6.9</status>
+    //<platform environment="win32" support="true">Possui suporte nativo ao Windows</platform>
     private async parseStatusBetweenLines(document: vscode.TextDocument): Promise<StatusEntry[]> {
         const statuses: StatusEntry[] = [];
         const statusRegex = /<status\s+(type)\s*=\s*"([^"]+)"\s*>(.*?)<\/status>/gi;
@@ -447,15 +505,18 @@ export class CmlHoverProvider implements vscode.HoverProvider {
                 }
 
                 const symbolRange = await this.findFollowingSymbol(document, lineIndex + 1);
-
+                    
                 if (!symbolRange)
                     continue;
+
+                const platform = await this.parsePlatformBetweenLines(document, lineIndex + 1, symbolRange.start.line);
 
                 statuses.push({
                     status: {
                         type: attrValue,
                         desc
                     },
+                    platform,
                     range: symbolRange
                 });
             }
@@ -464,10 +525,42 @@ export class CmlHoverProvider implements vscode.HoverProvider {
         return statuses;
     }
 
-    private parsePlatformBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlPlatform | undefined {
-        const platformRegex = /<platform\s+(type)\s*=\s*"([^"]+)"\s*>(.*?)<\/platform>/gi;
+    private parsePlatformBetweenLines(document: vscode.TextDocument, startLine: number, endLine: number): CmlPlatform[] | undefined {
+        const platforms: CmlPlatform[] = [];
+        const envValues = environment;
+        const supportValues = support;
 
-        return undefined;
+        const sourceRange = new vscode.Range(
+            new vscode.Position(startLine, 0),
+            new vscode.Position(Math.min(endLine, document.lineCount), 0)
+        );
+
+        const text = document.getText(sourceRange);
+        const platformRegex = /<platform\b([^>]*)>([\s\S]*?)<\/platform>/gi;
+
+        for (const match of text.matchAll(platformRegex)) {
+            const attrs = CmlHoverProvider.parseAttributes(match[1] ?? '');
+            const environmentValue = attrs.environment?.trim();
+            const supportValue = attrs.support?.trim();
+            const desc = TrimCommentSection(match[2].replace(/\r?\n/g, '\n').trim());
+
+            if (!environmentValue || !supportValue)
+                continue;
+
+            if (!Contains(envValues, environmentValue))
+                vscode.window.showWarningMessage(`Unrecognized environment for <platform>: '${environmentValue}'`);
+
+            if (!Contains(supportValues, supportValue))
+                vscode.window.showWarningMessage(`Unrecognized support value for <platform>: '${supportValue}'`);
+
+            platforms.push({
+                platform: environmentValue,
+                support: supportValue,
+                desc
+            });
+        }
+
+        return platforms;
     }
 //</span>
 

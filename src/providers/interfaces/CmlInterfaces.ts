@@ -14,6 +14,11 @@ export interface CmlSee {
     linkage: "path" | "url" | "target";
 }
 
+export interface CmlExample {
+    desc: string;
+    lang?: string;
+}
+
 export interface CmlAuthor {
     name: string;
     contact?: string;
@@ -27,6 +32,7 @@ export interface CmlStatus {
 
 export interface CmlPlatform {
     platform: string;
+    support?: string;
     desc?: string;
 }
 
@@ -53,6 +59,7 @@ export interface SynopsisEntry {
     returnDescription?: string;
     note?: string;
     warning?: string;
+    examples?: CmlExample[];
     range: vscode.Range;
 }
 
@@ -83,6 +90,7 @@ export interface SinceEntry {
 
 export interface StatusEntry {
     status?: CmlStatus;
+    platform?: CmlPlatform[];
     range: vscode.Range;
 }
 

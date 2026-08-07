@@ -2,7 +2,7 @@
   "name": "cml-vscode",
   "displayName": "Document It Up",
   "description": "Document It Up — Structured code navigation and documentation using the Commentary Markup Language.",
-  "version": "0.9.7",
+  "version": "0.9.9",
   "publisher": "Skrom",
   "repository": {
     "type": "git",
