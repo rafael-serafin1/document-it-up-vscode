@@ -16,6 +16,7 @@ export interface CmlLabel {
   name: string;
   description?: string;
   range: vscode.Range;
+  foldable?: boolean;
   spans: CmlSpan[];
   parent?: CmlLabel;
   children: CmlLabel[];
@@ -25,7 +26,8 @@ export interface CmlLabel {
 //<label>PATTERNS</label>
 //<desc>Moldes de reconhecimento usando Regex.</desc>
 //<span>
-const labelPattern = /<label>([^<]+)<\/label>/i;
+const labelPattern = /<label(\s+[^>]*)?>([^<]+)<\/label>/i;
+const labelFoldableAttrPattern = /\bfoldable\b/i;
 const descPattern = /<desc>([^<]+)<\/desc>/i;
 const spanOpenPattern = /<span>/i;
 const spanClosePattern = /<\/span>/i;
@@ -76,7 +78,7 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   const openLabelStack: CmlLabel[] = [];
   const openSpanStack: Array<{ label: CmlLabel; span: CmlSpan }> = [];
 
-  for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+  for (let lineIndex = 0; lineIndex < document.lineCount; ++lineIndex) {
     const line = document.lineAt(lineIndex).text;
     const comment = getCommentContent(line);
 
@@ -85,16 +87,19 @@ export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
 
     const labelMatch = labelPattern.exec(comment);
     if (labelMatch) {
-      const name = labelMatch[1].trim();
+      const name = labelMatch[2].trim();
       if (!name)
         continue;
 
+      const attrsText = labelMatch[1] || '';
+      const foldable = labelFoldableAttrPattern.test(attrsText);
+      
       const labelRange = new vscode.Range(
         new vscode.Position(lineIndex, line.indexOf(labelMatch[0])),
         new vscode.Position(lineIndex, line.indexOf(labelMatch[0]) + labelMatch[0].length)
       );
 
-      currentLabel = { name, description: undefined, range: labelRange, spans: [], children: [] };
+      currentLabel = { name, description: undefined, range: labelRange, foldable, spans: [], children: [] };
       labels.push(currentLabel);
 
       const parentLabel = openLabelStack[openLabelStack.length - 1];

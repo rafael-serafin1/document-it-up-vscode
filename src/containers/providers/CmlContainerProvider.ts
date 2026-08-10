@@ -21,18 +21,6 @@ export class CmlNavigationProvider
                     [],
                     "cml.showHierarchy",
                     "list-tree"
-                )
-            ]
-        ),
-
-        new NavigationItem(
-            "Documentation",
-            [
-                new NavigationItem(
-                    "Search by Author's Name",
-                    [],
-                    "cml.searchByAuthor",
-                    "search-fuzzy"
                 ),
                 
                 new NavigationItem(
@@ -48,6 +36,19 @@ export class CmlNavigationProvider
                     "cml.jumpToExit",
                     "sign-out"
                 )
+            ]
+        ),
+
+        new NavigationItem(
+            "Documentation",
+            [
+                new NavigationItem(
+                    "Search by Author's Name",
+                    [],
+                    "cml.searchByAuthor",
+                    "search-fuzzy"
+                ),
+            
             ]
         ),
     ];

@@ -2,10 +2,16 @@ import * as vscode from 'vscode';
 import { AttributesDefinition, environment, licenseAttrs, seeAttr, support } from './CmlAttributeValuesCompletionProvider';
 
 const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
+  label: [
+    {
+      name: "foldable",
+      desc: "Define se uma label é dobrável"
+    }
+  ],
   param: [
     {
-        name: "name",
-        desc: "Descreve o nome do parâmetro, se tiver"
+      name: "name",
+      desc: "Descreve o nome do parâmetro, se tiver"
     }
   ],
   see: seeAttr,
@@ -22,10 +28,10 @@ const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
       desc: 'Define o estado atual da implementação de um símbolo.'
     }
   ],
-  exception: [
+  throws: [
     {
-      name: 'named',
-      desc: 'Define o nome da exceção.'
+      name: 'exception',
+      desc: 'Define a exceção lançada.'
     }
   ],
   author: [

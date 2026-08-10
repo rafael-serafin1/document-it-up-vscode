@@ -57,7 +57,7 @@ A CML aceita qualquer tipo de comentário, sendo eles os mais usados `//`, `/**/
 <status>
 ---> Em Desenvolvimento
 <example>
-<exception>
+<throws>
 <access>
 <platform>
 <license>
@@ -79,6 +79,28 @@ Também pode ser utilizada em comentários de bloco.
 /*
 <label>STRINGS</label>
 */
+```
+
+### Atributos
+
+`foldable`:
+Atributo booleano responsável por definir se uma região é dobrável ou não. 
+
+Não dobrado:
+```c
+//<label foldable>STRINGS</label>
+//<desc>String handlers</desc>
+//<span>
+.
+.
+.
+// </span>
+```
+
+Dobrado:
+```c
+//<label foldable>STRINGS</label> 
+[...]
 ```
 
 ---
@@ -536,19 +558,19 @@ pub fn make_dir(path: &str) {
 
 ---
 
-## `<exception>`
+## `<throws>`
 
 Descreve uma exceção específica.
 
 ### Atributos
 
-`named`:
-Define o nome da exceção.
+`exception`:
+Define a exceção lançada pela função.
 
 ### Exemplo
 
 ```cpp
-//<exception named="std::invalid_argument">Argumento com valor inválido para função.</exception>
+//<throws exception="std::invalid_argument">Argumento com valor inválido para função.</throws>
 ```
 
 ---

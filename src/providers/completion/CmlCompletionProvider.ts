@@ -111,10 +111,10 @@ export const cmlTagSuggestions: CmlTagSuggestion[] = [
     insertText: 'status type="$0">$1</status>'
   },
   {
-    label: 'exception',
-    detail: 'Describe a specific exception',
+    label: 'throws',
+    detail: 'Describe a specific exception thrown',
     documentation: 'Descreve uma exceção específica.',
-    insertText: 'exception named="Exception">$0</exception>'
+    insertText: 'throws exception="Exception">$0</throws>'
   },
   {
     label: 'permission',

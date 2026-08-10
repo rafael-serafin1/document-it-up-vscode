@@ -11,6 +11,7 @@ import { CmlNavigationProvider } from './containers/providers/CmlContainerProvid
 import { CmlViewContainer } from './containers/CmlContainer';
 import { JumpToEntry } from './containers/documentation/CmlJumpToEntry';
 import { JumpToExit } from './containers/documentation/CmlJumpToExit';
+import { CmlFoldingRangeProvider } from './classes/CmlFolding';
 
 export interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
@@ -76,8 +77,24 @@ CmlViewContainer(context);
     new CmlHoverProvider()
   );
 
+  const foldingRangeProvider = vscode.languages.registerFoldingRangeProvider(
+    [{ scheme: 'file' }, { scheme: 'untitled' }],
+    new CmlFoldingRangeProvider()
+  );
+
   //<synopsis>Colocar comandos aqui faz com que eles sejam dispostos como botões clicáveis na barra acima do mini mapa</synopsis>
-  context.subscriptions.push(showLabelsCommand, showHierarchyCommand, searchByAuthorCommand, tagCompletionProvider, attributeCompletionProvider, attributeValueCompletionProvider, hoverProvider);
+  context.subscriptions.push(
+    showLabelsCommand,
+    showHierarchyCommand,
+    searchByAuthorCommand,
+    jumpToEntryCommand,
+    jumpToExitCommand,
+    tagCompletionProvider,
+    attributeCompletionProvider,
+    attributeValueCompletionProvider,
+    hoverProvider,
+    foldingRangeProvider
+  );
 }
 
 //<synopsis>Função responsável pela desativação da extensão.</synopsis>
