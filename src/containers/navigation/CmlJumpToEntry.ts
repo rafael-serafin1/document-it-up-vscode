@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CmlQuickPickEntryItem, EntrySearchResult } from './interfaces/CmlDocumentationInterfaces';
+import { CmlQuickPickEntryItem, EntrySearchResult } from '../documentation/interfaces/CmlDocumentationInterfaces';
 import { parseCmlEntryTag } from '../../CmlParser';
 import { CmlEntry } from '../../providers/interfaces/CmlInterfaces';
 

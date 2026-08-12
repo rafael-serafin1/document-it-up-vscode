@@ -21,6 +21,14 @@ export interface CmlLabel {
   parent?: CmlLabel;
   children: CmlLabel[];
 }
+
+export interface CmlPin {
+  as?: string;
+  by: string;
+  priority?: 'none' | 'low' | 'medium' | 'high' | 'urgent';
+  range: vscode.Range;
+  lineNumber: number;
+}
 //</span>
 
 //<label>PATTERNS</label>
@@ -31,6 +39,9 @@ const labelFoldableAttrPattern = /\bfoldable\b/i;
 const descPattern = /<desc>([^<]+)<\/desc>/i;
 const spanOpenPattern = /<span>/i;
 const spanClosePattern = /<\/span>/i;
+
+const pinTagRegex = /<pin\b([^>]*)\/>/i;
+const attributeRegex = /\b(as|by|priority)\s*=\s*"([^"]*)"/gi;
 //</span>
 
 
@@ -39,38 +50,110 @@ const spanClosePattern = /<\/span>/i;
 //<span>
 
 ///<synopsis>Verifica se a tag está dentro dos limites do comentário.</synopsis>
-function getCommentContent(line: string): string |undefined {
-    const trimmed = line.trim();
+function getCommentContent(line: string): string | undefined {
+  const trimmed = line.trim();
 
-    if (trimmed.startsWith("//"))
-        return trimmed.slice(2).trim();
+  if (trimmed.startsWith("//"))
+    return trimmed.slice(2).trim();
 
-    if (trimmed.startsWith("/*") && trimmed.endsWith("*/"))
-        return trimmed.slice(2, -2).trim();
+  if (trimmed.startsWith("/*") && trimmed.endsWith("*/"))
+    return trimmed.slice(2, -2).trim();
 
-    if (trimmed.startsWith("#"))
-        return trimmed.slice(1).trim();
+  if (trimmed.startsWith("#"))
+    return trimmed.slice(1).trim();
 
-    if (trimmed.startsWith(";"))
-        return trimmed.slice(1).trim();
+  if (trimmed.startsWith(";"))
+    return trimmed.slice(1).trim();
 
-    if (trimmed.startsWith("*"))
-        return trimmed.slice(1).trim();
+  if (trimmed.startsWith("*"))
+    return trimmed.slice(1).trim();
 
-    if (trimmed.startsWith("(*") && trimmed.endsWith("*)"))
-        return trimmed.slice(2, -2).trim();
+  if (trimmed.startsWith("(*") && trimmed.endsWith("*)"))
+    return trimmed.slice(2, -2).trim();
 
-    if (trimmed.startsWith("<!--") && trimmed.endsWith("-->"))
-        return trimmed.slice(4, -3).trim();
+  if (trimmed.startsWith("<!--") && trimmed.endsWith("-->"))
+    return trimmed.slice(4, -3).trim();
 
-    return undefined;
+  return undefined;
+}
+
+function getCommentInline(line: string): string | undefined {
+  let quote: '"' | "'" | '`' | undefined = undefined;
+  let escaped = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    // em caso esteja dentro da string
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaped = true;
+        continue;
+      }
+
+      if (char === quote) {
+        quote = undefined;
+      }
+
+      continue;
+    }
+
+    // início de string
+    if (char === '"' || char === "'" || char === "`") {
+      quote = char;
+      continue;
+    }
+
+    // //
+    if (char === "/" && line[i + 1] === "/") {
+      return line.slice(i + 2).trim();
+    }
+
+    // /* */
+    if (char === "/" && line[i + 1] === "*") {
+      const end = line.indexOf("*/", i + 2);
+
+      if (end === -1)
+        return line.slice(i + 2).trim();
+
+      return line.slice(i + 2, end).trim();
+    }
+
+    // <!-- -->
+    if (line.startsWith("<!--", i)) {
+      const end = line.indexOf("-->", i + 4);
+
+      if (end === -1)
+        return line.slice(i + 4).trim();
+
+      return line.slice(i + 4, end).trim();
+    }
+
+    // (* *)
+    if (char === "(" && line[i + 1] === "*") {
+      const end = line.indexOf("*)", i + 2);
+
+      if (end === -1)
+        return line.slice(i + 2).trim();
+
+      return line.slice(i + 2, end).trim();
+    }
+  }
+
+  return undefined;
 }
 //</span>
 
-//<label>PARSER</label>
+//<label>PARSERS</label>
 //<desc>Implementação do parser para reconhecimento das tags.</desc>
 //<span>
 
+//<synopsis>Parseia as 'labels'</synopsis>
 export function parseCmlLabels(document: vscode.TextDocument): CmlLabel[] {
   const labels: CmlLabel[] = [];
   let currentLabel: CmlLabel | undefined;
@@ -196,6 +279,11 @@ export function parseCmlAuthors(document: vscode.TextDocument): CmlAuthorParsed[
   return authors;
 }
 
+
+//<label>ENTRY_EXIT</label>
+//<desc>Parsers das tags 'entry' e 'exit'</desc>
+//<span>
+
 export function parseCmlEntryTag(document: vscode.TextDocument): CmlEntryTagParsed[] {
   const entryTags: CmlEntryTagParsed[] = [];
 
@@ -242,7 +330,7 @@ export function parseCmlExitTag(document: vscode.TextDocument): CmlExitTagParsed
     if (!comment)
       continue;
 
-    const exitMatch = line.match(/<exit>(.*?)<\/exit>/i);
+    const exitMatch = comment.match(/<exit>(.*?)<\/exit>/i);
     if (!exitMatch)
       continue;
 
@@ -267,4 +355,48 @@ export function parseCmlExitTag(document: vscode.TextDocument): CmlExitTagParsed
 
   return exitTags;
 }
+//</span>
+
+//<synopsis>Parseia todas as tags 'pins' de um arquivo</synopsis>
+export function parseCmlPinTag(document: vscode.TextDocument): CmlPin[] {
+  const pins: CmlPin[] = [];
+
+  for (let lineIndex = 0; lineIndex < document.lineCount; ++lineIndex) {
+    const line = document.lineAt(lineIndex).text;
+    const comment = getCommentInline(line);
+
+    if (!comment)
+      continue;
+
+    const pinsMatch = comment.match(pinTagRegex);
+
+    if (!pinsMatch)
+      continue;
+
+    const attributes: Record<string, string> = { };
+    
+    for (const match of pinsMatch[1].matchAll(attributeRegex))
+      attributes[match[1]] = match[2];
+
+    const startCharacter = comment.indexOf(pinsMatch[0]);
+    const range = new vscode.Range(
+      new vscode.Position(lineIndex, startCharacter),
+      new vscode.Position(lineIndex, startCharacter + pinsMatch[0].length)
+    );
+
+    /// se a prioridade for 'undefined', então deve ser automaticamente 'none'
+    const priority = attributes.priority as 'none' | 'low' | 'medium' | 'high' | 'urgent';    
+    
+    pins.push({
+      as: attributes.as,
+      by: attributes.by,
+      priority: priority ?? 'none',
+      range,
+      lineNumber: lineIndex + 1
+    });
+  }
+
+  return pins;
+}
+
 //</span>

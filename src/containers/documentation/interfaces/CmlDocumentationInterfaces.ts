@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
-import { AuthorEntry, EntryEntry, ExitEntry } from "../../../providers/interfaces/CmlInterfaces";
+import { AuthorEntry, EntryEntry, ExitEntry, PinEntry } from "../../../providers/interfaces/CmlInterfaces";
+import { CmlPin } from "../../../CmlParser";
 
 //<synopsis>Quick Pick Authors</synopsis>
 export interface CmlAuthorQuickPickItem extends vscode.QuickPickItem {
@@ -14,6 +15,11 @@ export interface CmlQuickPickEntryItem extends vscode.QuickPickItem {
 //<synopsis>Quick Pick Exit</synopsis>
 export interface CmlQuickPickExitItem extends vscode.QuickPickItem {
     exitData: ExitSearchResult;
+}
+
+//<synopsis>Quick Pick Pins</synopsis>
+export interface CmlPinQuickPickItem extends vscode.QuickPickItem {
+    pinData: CmlPin;
 }
 
 //<synopsis>Quick Pick Author's Data Interface</synopsis>
@@ -33,6 +39,13 @@ export interface EntrySearchResult extends EntryEntry {
 
 //<synopsis>Quick Pick Exit Data Interface</synopsis>
 export interface ExitSearchResult extends ExitEntry {
+    uri: vscode.Uri;
+    filePath: string;
+    lineNumber: number;
+}
+
+//<synopsis>Quick Pick Pin Data Interface</synopsis>
+export interface PinSearchResult extends PinEntry {
     uri: vscode.Uri;
     filePath: string;
     lineNumber: number;

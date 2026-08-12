@@ -1,13 +1,7 @@
 import * as vscode from 'vscode';
-import { AttributesDefinition, environment, licenseAttrs, seeAttr, support } from './CmlAttributeValuesCompletionProvider';
+import { AttributesDefinition, environment, licenseAttrs, pinTypes, priority, seeAttr, support } from './CmlAttributeValuesCompletionProvider';
 
 const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
-  label: [
-    {
-      name: "foldable",
-      desc: "Define se uma label é dobrável"
-    }
-  ],
   param: [
     {
       name: "name",
@@ -61,6 +55,22 @@ const cmlTagAttribute: Record<string, AttributesDefinition[]> = {
       name: 'support',
       desc: 'Descreve o suporte para tal ambiente.',
       values: support
+    }
+  ],
+  pin: [
+    {
+      name: 'as',
+      desc: 'Descreve o tipo de pino adicionado.',
+      values: pinTypes
+    },
+    {
+      name: 'by',
+      desc: 'Define explicitamente quem adicionou o pino.'
+    },
+    {
+      name: 'priority',
+      desc: 'Descreve a prioridade do conteúdo marcado pelo pino.',
+      values: priority
     }
   ]
 };

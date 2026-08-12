@@ -1,9 +1,8 @@
 import * as vscode from "vscode";
 import { NavigationItem } from "./CmlButtonProvider";
 
-export class CmlNavigationProvider
-    implements vscode.TreeDataProvider<NavigationItem> {
-
+//<synopsis>Responsável por prover o container de navegação na barra lateral</synopsis>
+export class CmlNavigationProvider implements vscode.TreeDataProvider<NavigationItem> {
     private readonly rootItems: NavigationItem[] = [
 
         new NavigationItem(
@@ -22,7 +21,7 @@ export class CmlNavigationProvider
                     "cml.showHierarchy",
                     "list-tree"
                 ),
-                
+
                 new NavigationItem(
                     "Jump to Entry",
                     [],
@@ -48,7 +47,13 @@ export class CmlNavigationProvider
                     "cml.searchByAuthor",
                     "search-fuzzy"
                 ),
-            
+                
+                new NavigationItem(
+                    "Search by Pin's Priority",
+                    [],
+                    "cml.searchByPriority",
+                    "pinned-dirty"
+                )
             ]
         ),
     ];

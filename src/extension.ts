@@ -9,9 +9,10 @@ import { ShowHierarchy } from './containers/navigation/CmlLabelHierarchy';
 import { SearchByAuthorsName } from './containers/documentation/CmlAuthorSearch';
 import { CmlNavigationProvider } from './containers/providers/CmlContainerProvider';
 import { CmlViewContainer } from './containers/CmlContainer';
-import { JumpToEntry } from './containers/documentation/CmlJumpToEntry';
-import { JumpToExit } from './containers/documentation/CmlJumpToExit';
 import { CmlFoldingRangeProvider } from './classes/CmlFolding';
+import { JumpToEntry } from './containers/navigation/CmlJumpToEntry';
+import { JumpToExit } from './containers/navigation/CmlJumpToExit';
+import { SearchByPriorityPin } from './containers/documentation/CmlPriorityPinSearch';
 
 export interface CmlQuickPickItem extends vscode.QuickPickItem {
   labelData: CmlLabel;
@@ -41,7 +42,10 @@ export function activate(context: vscode.ExtensionContext) {
   const jumpToEntryCommand = vscode.commands.registerCommand('cml.jumpToEntry', async () => { await JumpToEntry(); });
 
   //<synopsis>Jump to Exit</synopsis>
-  const jumpToExitCommand = vscode.commands.registerCommand('cml.jumpToExit', async () => { await JumpToExit(); })
+  const jumpToExitCommand = vscode.commands.registerCommand('cml.jumpToExit', async () => { await JumpToExit(); });
+
+  //<synopsis>Search by Pin's Priority</synopsis>
+  const searchByPriorityPin = vscode.commands.registerCommand('cml.searchByPriority', async () => { await SearchByPriorityPin(); });
 
 //</span>
 
@@ -89,12 +93,13 @@ CmlViewContainer(context);
     searchByAuthorCommand,
     jumpToEntryCommand,
     jumpToExitCommand,
+    searchByPriorityPin,
     tagCompletionProvider,
     attributeCompletionProvider,
     attributeValueCompletionProvider,
     hoverProvider,
     foldingRangeProvider
-  );
+  );  //<pin as="important" by="Rafael" priority="urgent" />
 }
 
 //<synopsis>Função responsável pela desativação da extensão.</synopsis>

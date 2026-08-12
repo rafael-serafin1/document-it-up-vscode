@@ -81,28 +81,6 @@ Também pode ser utilizada em comentários de bloco.
 */
 ```
 
-### Atributos
-
-`foldable`:
-Atributo booleano responsável por definir se uma região é dobrável ou não. 
-
-Não dobrado:
-```c
-//<label foldable>STRINGS</label>
-//<desc>String handlers</desc>
-//<span>
-.
-.
-.
-// </span>
-```
-
-Dobrado:
-```c
-//<label foldable>STRINGS</label> 
-[...]
-```
-
 ---
 
 ## `<desc>`**
@@ -218,6 +196,7 @@ hotspot
 critical
 dirty
 ```
+> Valores fora desse padrão são permitidos, mas não haverá suporte para pesquisa de tais.
 
 `by`:
 Define quem colocou o pino.

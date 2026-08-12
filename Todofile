@@ -1,10 +1,10 @@
 1. [X] Hierarquia de labels com lista extensível mostrando todas as labels-filhas de uma label-mãe
 2. [X] Fazer com que as labels sejam dobráveis para recolher uma região
-3. [ ] Pins e favoritos
+3. [X] Pins e favoritos
 4. [ ] Ordenação de leitura através da tag next
 5. [X] Entrada de projeto através da tag entry
 6. [X] Navegação via nome de autor
 7. [X] Pular até saída através da tag exit
 8. [X] Fazer a tag 'example' funcional
 9. [X] Terminar a tag 'platform'
-10. [-] Comentários que não sejam o primeiro conteúdo da linha são ignorados. Resolver antes de fazer a tag <pin>.
+10. [X] Comentários que não sejam o primeiro conteúdo da linha são ignorados. Resolver antes de fazer a tag <pin>.

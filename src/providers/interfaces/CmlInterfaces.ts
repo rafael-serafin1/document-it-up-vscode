@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CmlLabel } from '../../CmlParser';
+import { CmlLabel, CmlPin } from '../../CmlParser';
 
 //<label>COMMON_INTERFACES</label>
 //<desc>Interfaces comuns que representam certas tags.</desc>
@@ -91,6 +91,11 @@ export interface SinceEntry {
 export interface StatusEntry {
     status?: CmlStatus;
     platform?: CmlPlatform[];
+    range: vscode.Range;
+}
+
+export interface PinEntry {
+    pin?: CmlPin;
     range: vscode.Range;
 }
 
